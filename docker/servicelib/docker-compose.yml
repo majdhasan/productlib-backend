@@ -1,0 +1,11 @@
+version: '3'
+services:
+  postgres-service-now:
+    container_name: service-now-db
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: "servicelib"
+    ports:
+      - "5433:5432" # Host port 5433 mapped to container port 5432
+    volumes:
+      - ~/postgres-servicelib-data:/var/lib/postgresql/data
