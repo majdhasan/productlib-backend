@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/calendar-events")
+@RequestMapping("/api/calendar-events")
 class CalendarEventController(private val service: CalendarEventService) {
 
     @PostMapping
