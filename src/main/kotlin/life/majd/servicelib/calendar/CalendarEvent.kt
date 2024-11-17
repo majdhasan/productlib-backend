@@ -12,9 +12,7 @@ data class CalendarEvent(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
-    val title: String,
-
-    val description: String? = null,
+    val notes: String? = null,
 
     @Column(name = "start_time")
     val startTime: LocalDateTime,
@@ -24,8 +22,8 @@ data class CalendarEvent(
 
     val location: String? = null,
 
-    @Column(name = "is_all_day")
-    val isAllDay: Boolean = false,
+    @Column(name = "is_paid")
+    val isPaid: Boolean = false,
 
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
@@ -34,8 +32,8 @@ data class CalendarEvent(
     val updatedAt: LocalDateTime = LocalDateTime.now(),
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    val user: User, // The user who booked the service
+    @JoinColumn(name = "customer_id", nullable = false)
+    val customer: User,
 
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)

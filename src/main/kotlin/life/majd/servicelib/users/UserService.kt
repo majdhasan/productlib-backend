@@ -8,23 +8,43 @@ import org.springframework.transaction.annotation.Transactional
 class UserService(private val repository: UserRepository) {
 
     fun createUser(user: User): User {
-        if (repository.findByUsername(user.username) != null) {
-            throw IllegalArgumentException("Username already exists.")
-        }
-        if (repository.findByEmail(user.email) != null) {
-            throw IllegalArgumentException("Email already exists.")
-        }
+        validateUserUniqueness(user)
         return repository.save(user)
     }
 
+    fun createGuestUser(email: String): User {
+        if (repository.findByEmail(email) != null) {
+            throw IllegalArgumentException("Email already exists.")
+        }
+
+        val guestUser = User(
+            email = email,
+            password = null,
+            isRegistered = false,
+            isVerified = false
+        )
+        return repository.save(guestUser)
+    }
+
+    fun verifyUser(userId: Long) {
+        val user = repository.findById(userId).orElseThrow {
+            IllegalArgumentException("User with ID $userId not found")
+        }
+        val updatedUser = user.copy(isVerified = true)
+        repository.save(updatedUser)
+    }
+
+    @Transactional(readOnly = true)
     fun getUserById(id: Long): User? {
         return repository.findById(id).orElse(null)
     }
 
-    fun getUserByUsername(username: String): User? {
-        return repository.findByUsername(username)
+    @Transactional(readOnly = true)
+    fun getUserByEmail(email: String): User? {
+        return repository.findByEmail(email)
     }
 
+    @Transactional(readOnly = true)
     fun getAllUsers(): List<User> {
         return repository.findAll()
     }
@@ -35,5 +55,26 @@ class UserService(private val repository: UserRepository) {
         } else {
             throw IllegalArgumentException("User with ID $id not found")
         }
+    }
+
+    private fun validateUserUniqueness(user: User) {
+        if (repository.findByEmail(user.email) != null) {
+            throw IllegalArgumentException("Email already exists.")
+        }
+    }
+
+    fun convertGuestToRegisteredUser(guestId: Long, password: String): User {
+        val user = repository.findById(guestId).orElseThrow {
+            IllegalArgumentException("Guest user with ID $guestId not found")
+        }
+
+        if (user.isRegistered) {
+            throw IllegalArgumentException("User with ID $guestId is already registered.")
+        }
+
+        user.password = password
+        user.isRegistered = true
+
+        return repository.save(user)
     }
 }

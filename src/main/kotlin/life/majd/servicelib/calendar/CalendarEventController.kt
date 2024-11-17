@@ -19,9 +19,9 @@ class CalendarEventController(private val service: CalendarEventService) {
         return ResponseEntity.ok(events)
     }
 
-    @GetMapping("/user/{userId}")
-    fun getEventsByUser(@PathVariable userId: Long): ResponseEntity<List<CalendarEvent>> {
-        val events = service.getEventsByUser(userId)
+    @GetMapping("/user/{customerId}")
+    fun getEventsByCustomer(@PathVariable customerId: Long): ResponseEntity<List<CalendarEvent>> {
+        val events = service.getEventsByCustomer(customerId)
         return ResponseEntity.ok(events)
     }
 

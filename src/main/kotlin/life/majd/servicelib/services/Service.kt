@@ -17,11 +17,18 @@ data class Service(
     @Column
     val description: String? = null,
 
+    @Column
+    val location: String? = null,
+
     @Column(nullable = false)
     val cost: Double,
 
     @Column(nullable = false)
-    val duration: Int, // Duration in minutes
+    val duration: Int,
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    val category: ServiceCategory,
 
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),

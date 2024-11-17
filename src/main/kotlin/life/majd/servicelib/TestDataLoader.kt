@@ -3,6 +3,7 @@ package life.majd.servicelib
 import life.majd.servicelib.calendar.CalendarEvent
 import life.majd.servicelib.calendar.CalendarEventRepository
 import life.majd.servicelib.services.Service
+import life.majd.servicelib.services.ServiceCategory
 import life.majd.servicelib.services.ServiceRepository
 import life.majd.servicelib.users.User
 import life.majd.servicelib.users.UserRepository
@@ -22,8 +23,8 @@ class TestDataLoader(
     fun initDatabase(): CommandLineRunner {
         return CommandLineRunner {
             // Create Users
-            val user1 = userRepository.save(User(username = "john_doe", password = "password123", email = "john@example.com"))
-            val user2 = userRepository.save(User(username = "jane_doe", password = "secure456", email = "jane@example.com"))
+            val user1 = userRepository.save(User(password = "password123", email = "john@example.com"))
+            val user2 = userRepository.save(User(password = "secure456", email = "jane@example.com"))
 
             // Create Services
             val service1 = serviceRepository.save(
@@ -32,7 +33,8 @@ class TestDataLoader(
                     description = "One-hour personal training session",
                     cost = 50.0,
                     duration = 60,
-                    user = user1
+                    user = user1,
+                    category = ServiceCategory.HAIRSTYLIST
                 )
             )
             val service2 = serviceRepository.save(
@@ -41,33 +43,30 @@ class TestDataLoader(
                     description = "30-minute professional consultation",
                     cost = 100.0,
                     duration = 30,
-                    user = user2
+                    user = user2,
+                    category = ServiceCategory.HAIRSTYLIST
                 )
             )
 
             // Create Calendar Events (Bookings)
             calendarEventRepository.save(
                 CalendarEvent(
-                    title = "Training Session",
-                    description = "Book a training session with John",
+                    notes = "Book a training session with John",
                     startTime = LocalDateTime.of(2024, 11, 20, 10, 0),
                     endTime = LocalDateTime.of(2024, 11, 20, 11, 0),
                     location = "John's Gym",
-                    isAllDay = false,
-                    user = user2, // Jane is booking the session
+                    customer = user2, // Jane is booking the session
                     service = service1 // Booking John's service
                 )
             )
 
             calendarEventRepository.save(
                 CalendarEvent(
-                    title = "Consultation Meeting",
-                    description = "Book a consultation with Jane",
+                    notes = "Book a consultation with Jane",
                     startTime = LocalDateTime.of(2024, 11, 22, 15, 0),
                     endTime = LocalDateTime.of(2024, 11, 22, 15, 30),
                     location = "Office",
-                    isAllDay = false,
-                    user = user1, // John is booking the session
+                    customer = user1, // John is booking the session
                     service = service2 // Booking Jane's service
                 )
             )

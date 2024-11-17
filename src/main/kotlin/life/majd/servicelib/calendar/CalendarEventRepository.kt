@@ -6,5 +6,5 @@ import java.time.LocalDateTime
 interface CalendarEventRepository : JpaRepository<CalendarEvent, Long> {
     fun findAllByStartTimeBetween(start: LocalDateTime, end: LocalDateTime): List<CalendarEvent>
     fun findAllByServiceId(serviceId: Long): List<CalendarEvent>
-    fun findAllByUserId(userId: Long): List<CalendarEvent>
+    fun findAllByCustomerId(customerId: Long): List<CalendarEvent>
 }

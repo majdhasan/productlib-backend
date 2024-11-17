@@ -15,7 +15,7 @@ class CalendarEventService(private val repository: CalendarEventRepository) {
 
     fun getAllEvents(): List<CalendarEvent> = repository.findAll()
 
-    fun getEventsByUser(userId: Long): List<CalendarEvent> = repository.findAllByUserId(userId)
+    fun getEventsByCustomer(customerId: Long): List<CalendarEvent> = repository.findAllByCustomerId(customerId)
 
     fun getEventsByService(serviceId: Long): List<CalendarEvent> = repository.findAllByServiceId(serviceId)
 
@@ -27,14 +27,13 @@ class CalendarEventService(private val repository: CalendarEventRepository) {
             IllegalArgumentException("Event with ID $id not found")
         }
         val eventToSave = existingEvent.copy(
-            title = updatedEvent.title,
-            description = updatedEvent.description,
+            notes = updatedEvent.notes,
             startTime = updatedEvent.startTime,
             endTime = updatedEvent.endTime,
             location = updatedEvent.location,
-            isAllDay = updatedEvent.isAllDay,
             updatedAt = LocalDateTime.now(),
-            service = updatedEvent.service
+            service = updatedEvent.service,
+            customer = updatedEvent.customer
         )
         return repository.save(eventToSave)
     }
