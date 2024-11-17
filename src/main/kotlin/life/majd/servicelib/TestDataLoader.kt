@@ -1,7 +1,7 @@
 package life.majd.servicelib
 
-import life.majd.servicelib.calendar.CalendarEvent
-import life.majd.servicelib.calendar.CalendarEventRepository
+import life.majd.servicelib.bookings.Booking
+import life.majd.servicelib.bookings.BookingRepository
 import life.majd.servicelib.services.Service
 import life.majd.servicelib.services.ServiceCategory
 import life.majd.servicelib.services.ServiceRepository
@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 class TestDataLoader(
     private val userRepository: UserRepository,
     private val serviceRepository: ServiceRepository,
-    private val calendarEventRepository: CalendarEventRepository
+    private val bookingRepository: BookingRepository
 ) {
 
     @Bean
@@ -49,8 +49,8 @@ class TestDataLoader(
             )
 
             // Create Calendar Events (Bookings)
-            calendarEventRepository.save(
-                CalendarEvent(
+            bookingRepository.save(
+                Booking(
                     notes = "Book a training session with John",
                     startTime = LocalDateTime.of(2024, 11, 20, 10, 0),
                     endTime = LocalDateTime.of(2024, 11, 20, 11, 0),
@@ -60,8 +60,8 @@ class TestDataLoader(
                 )
             )
 
-            calendarEventRepository.save(
-                CalendarEvent(
+            bookingRepository.save(
+                Booking(
                     notes = "Book a consultation with Jane",
                     startTime = LocalDateTime.of(2024, 11, 22, 15, 0),
                     endTime = LocalDateTime.of(2024, 11, 22, 15, 30),

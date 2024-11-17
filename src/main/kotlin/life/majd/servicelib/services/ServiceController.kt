@@ -25,6 +25,9 @@ class ServiceController(private val service: ServiceService) {
         return ResponseEntity.ok(services)
     }
 
+    @GetMapping("/{id}")
+    fun getServiceById(@PathVariable id: Long): ResponseEntity<Service> = ResponseEntity.ok(service.getServicesById(id))
+
     @PutMapping("/{id}")
     fun updateService(@PathVariable id: Long, @RequestBody updatedService: Service): ResponseEntity<Service> {
         val updated = service.updateService(id, updatedService)

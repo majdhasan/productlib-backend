@@ -24,7 +24,7 @@ CREATE TABLE services
     CONSTRAINT fk_services_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
-CREATE TABLE calendar_event
+CREATE TABLE bookings
 (
     id          SERIAL PRIMARY KEY,
     notes       TEXT,
@@ -32,10 +32,10 @@ CREATE TABLE calendar_event
     end_time    TIMESTAMP NOT NULL,
     location    VARCHAR(255),
     is_paid     BOOLEAN   DEFAULT FALSE,
-    customer_id BIGINT    NOT NULL, -- Nullable to allow guest bookings
-    service_id  BIGINT    NOT NULL, -- The service being booked
+    customer_id BIGINT    NOT NULL,
+    service_id  BIGINT    NOT NULL,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_calendar_event_user FOREIGN KEY (customer_id) REFERENCES users (id) ON DELETE SET NULL,
-    CONSTRAINT fk_calendar_event_service FOREIGN KEY (service_id) REFERENCES services (id) ON DELETE CASCADE
+    CONSTRAINT fk_bookings_user FOREIGN KEY (customer_id) REFERENCES users (id) ON DELETE SET NULL,
+    CONSTRAINT fk_bookings_service FOREIGN KEY (service_id) REFERENCES services (id) ON DELETE CASCADE
 );

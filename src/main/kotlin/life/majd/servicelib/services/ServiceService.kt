@@ -16,6 +16,9 @@ class ServiceService(private val repository: ServiceRepository) {
 
     fun getServicesByUser(userId: Long): List<Service> = repository.findByUserId(userId)
 
+    fun getServicesById(serviceId: Long): Service =
+        repository.findById(serviceId).orElseThrow { IllegalArgumentException("Service with ID $serviceId not found") }
+
     fun updateService(id: Long, updatedService: Service): Service {
         val existingService = repository.findById(id).orElseThrow {
             IllegalArgumentException("Service with ID $id not found")

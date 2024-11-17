@@ -1,4 +1,4 @@
-package life.majd.servicelib.calendar
+package life.majd.servicelib.bookings
 
 import jakarta.persistence.*
 import life.majd.servicelib.services.Service
@@ -6,8 +6,8 @@ import life.majd.servicelib.users.User
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "calendar_event")
-data class CalendarEvent(
+@Table(name = "bookings")
+data class Booking(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
