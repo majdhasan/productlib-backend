@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -21,20 +23,20 @@ class BookingsController(
 
     @GetMapping
     fun getAllBookings(): ResponseEntity<List<Booking>> {
-        val events = bookingService.getAllBookings()
-        return ResponseEntity.ok(events)
+        val bookings = bookingService.getAllBookings()
+        return ResponseEntity.ok(bookings)
     }
 
     @GetMapping("/user/{customerId}")
     fun getBookingsByCustomer(@PathVariable customerId: Long): ResponseEntity<List<Booking>> {
-        val events = bookingService.getBookingsByCustomer(customerId)
-        return ResponseEntity.ok(events)
+        val bookings = bookingService.getBookingsByCustomer(customerId)
+        return ResponseEntity.ok(bookings)
     }
 
     @GetMapping("/service/{serviceId}")
     fun getBookingsByService(@PathVariable serviceId: Long): ResponseEntity<List<Booking>> {
-        val events = bookingService.getBookingsByService(serviceId)
-        return ResponseEntity.ok(events)
+        val bookings = bookingService.getBookingsByService(serviceId)
+        return ResponseEntity.ok(bookings)
     }
 
     @PostMapping
@@ -63,5 +65,15 @@ class BookingsController(
         )
 
         return ResponseEntity.ok(event)
+    }
+
+    @GetMapping("/service/{serviceId}/available-slots")
+    fun getAvailableSlots(
+        @PathVariable serviceId: Long,
+        @RequestParam date: String
+    ): ResponseEntity<List<String>> {
+        val parsedDate = LocalDate.parse(date)
+        val availableSlots = bookingService.getAvailableSlotsForService(serviceId, parsedDate)
+        return ResponseEntity.ok(availableSlots)
     }
 }
