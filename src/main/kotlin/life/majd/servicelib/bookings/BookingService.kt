@@ -17,6 +17,19 @@ class BookingService(private val repository: BookingRepository, private val serv
         return repository.save(booking)
     }
 
+    fun getBookingById(id: Long): Booking {
+        return repository.findById(id).orElseThrow { IllegalArgumentException("Booking with ID $id not found") }
+    }
+
+    fun markAsPaid(id: Long): Booking {
+        val booking = repository.findById(id).orElseThrow { IllegalArgumentException("Booking with ID $id not found") }
+        if (booking.isPaid) {
+            throw IllegalStateException("Booking with ID $id is already paid.")
+        }
+        val updatedBooking = booking.copy(isPaid = true, updatedAt = LocalDateTime.now())
+        return repository.save(updatedBooking)
+    }
+
     fun getAllBookings(): List<Booking> = repository.findAll()
 
     fun getBookingsByCustomer(customerId: Long): List<Booking> = repository.findAllByCustomerId(customerId)
@@ -40,14 +53,6 @@ class BookingService(private val repository: BookingRepository, private val serv
             customer = updatedBooking.customer
         )
         return repository.save(bookingToSave)
-    }
-
-    fun deleteBooking(id: Long) {
-        if (repository.existsById(id)) {
-            repository.deleteById(id)
-        } else {
-            throw IllegalArgumentException("Booking with ID $id not found")
-        }
     }
 
     private fun validateBooking(booking: Booking) {

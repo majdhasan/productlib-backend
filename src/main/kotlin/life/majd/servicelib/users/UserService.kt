@@ -62,19 +62,4 @@ class UserService(private val repository: UserRepository) {
             throw IllegalArgumentException("Email already exists.")
         }
     }
-
-    fun convertGuestToRegisteredUser(guestId: Long, password: String): User {
-        val user = repository.findById(guestId).orElseThrow {
-            IllegalArgumentException("Guest user with ID $guestId not found")
-        }
-
-        if (user.isRegistered) {
-            throw IllegalArgumentException("User with ID $guestId is already registered.")
-        }
-
-        user.password = password
-        user.isRegistered = true
-
-        return repository.save(user)
-    }
 }

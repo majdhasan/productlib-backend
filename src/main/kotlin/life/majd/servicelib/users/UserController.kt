@@ -48,16 +48,4 @@ class UserController(private val service: UserService) {
         service.deleteUser(id)
         return ResponseEntity.noContent().build()
     }
-
-    @PostMapping("/{id}/convert")
-    fun convertGuestToRegisteredUser(
-        @PathVariable id: Long,
-        @RequestBody request: ConvertGuestRequest
-    ): ResponseEntity<User> {
-        val updatedUser = service.convertGuestToRegisteredUser(
-            guestId = id,
-            password = request.password
-        )
-        return ResponseEntity.ok(updatedUser)
-    }
 }
