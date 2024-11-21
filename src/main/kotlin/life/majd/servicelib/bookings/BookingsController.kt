@@ -3,7 +3,6 @@ package life.majd.servicelib.bookings
 import life.majd.servicelib.services.ServiceRepository
 import life.majd.servicelib.users.User
 import life.majd.servicelib.users.UserRepository
-import org.springframework.http.CacheControl
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -29,16 +28,24 @@ class BookingsController(
     }
 
     @GetMapping("/{id}")
-    fun getBookingById(@PathVariable id: Long?): ResponseEntity<Booking> {
-        val booking = bookingService.getBookingById(id!!)
-        return ResponseEntity.ok()
-            .body(booking)
+    fun getBookingById(@PathVariable id: Long): ResponseEntity<Booking> {
+        val booking = bookingService.getBookingById(id)
+        return ResponseEntity.ok(booking)
     }
 
     @GetMapping("/user/{customerId}")
     fun getBookingsByCustomer(@PathVariable customerId: Long): ResponseEntity<List<Booking>> {
         val bookings = bookingService.getBookingsByCustomer(customerId)
         return ResponseEntity.ok(bookings)
+    }
+
+    @GetMapping("/lookup")
+    fun lookupBooking(
+        @RequestParam email: String,
+        @RequestParam bookingId: Long
+    ): ResponseEntity<Booking> {
+        val booking = bookingService.lookupBooking(email, bookingId)
+        return ResponseEntity.ok(booking)
     }
 
     @GetMapping("/service/{serviceId}")

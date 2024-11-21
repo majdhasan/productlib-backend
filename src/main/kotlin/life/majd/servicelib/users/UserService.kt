@@ -26,6 +26,17 @@ class UserService(private val repository: UserRepository) {
         return repository.save(guestUser)
     }
 
+    fun authenticateUser(email: String, password: String): User? {
+        val user = repository.findByEmail(email)
+            ?: throw IllegalArgumentException("User with email $email not found")
+
+        // Assuming passwords are stored securely (e.g., hashed), use a password verification function
+        if (user.password != password) {
+            throw IllegalArgumentException("Invalid email or password")
+        }
+        return user
+    }
+
     fun verifyUser(userId: Long) {
         val user = repository.findById(userId).orElseThrow {
             IllegalArgumentException("User with ID $userId not found")

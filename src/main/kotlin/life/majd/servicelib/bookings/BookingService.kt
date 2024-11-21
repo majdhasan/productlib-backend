@@ -18,7 +18,21 @@ class BookingService(private val repository: BookingRepository, private val serv
     }
 
     fun getBookingById(id: Long): Booking {
-        return repository.findById(id).orElseThrow { IllegalArgumentException("Booking with ID $id not found") }
+        return repository.findById(id).orElseThrow {
+            IllegalArgumentException("Booking with ID $id not found.")
+        }
+    }
+
+    fun lookupBooking(email: String, bookingId: Long): Booking {
+        val booking = repository.findById(bookingId).orElseThrow {
+            IllegalArgumentException("Booking with ID $bookingId not found.")
+        }
+
+        if (booking.customer.email != email) {
+            throw IllegalArgumentException("Email does not match the booking.")
+        }
+
+        return booking
     }
 
     fun markAsPaid(id: Long): Booking {

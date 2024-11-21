@@ -7,6 +7,13 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/users")
 class UserController(private val service: UserService) {
 
+    @PostMapping("/login")
+    fun loginUser(@RequestBody loginRequest: LoginRequest): ResponseEntity<User> {
+        val user = service.authenticateUser(loginRequest.email, loginRequest.password)
+            ?: return ResponseEntity.status(401).body(null) // Unauthorized
+        return ResponseEntity.ok(user)
+    }
+
     @PostMapping
     fun createUser(@RequestBody user: User): ResponseEntity<User> {
         return ResponseEntity.ok(service.createUser(user))
