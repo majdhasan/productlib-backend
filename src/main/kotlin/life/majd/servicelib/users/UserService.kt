@@ -7,26 +7,12 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class UserService(private val repository: UserRepository) {
 
-    fun createUser(user: User): User {
-        validateUserUniqueness(user)
-        return repository.save(user)
+    fun createUser(userEntity: UserEntity): UserEntity {
+        validateUserUniqueness(userEntity)
+        return repository.save(userEntity)
     }
 
-    fun createGuestUser(email: String): User {
-        if (repository.findByEmail(email) != null) {
-            throw IllegalArgumentException("Email already exists.")
-        }
-
-        val guestUser = User(
-            email = email,
-            password = null,
-            isRegistered = false,
-            isVerified = false
-        )
-        return repository.save(guestUser)
-    }
-
-    fun authenticateUser(email: String, password: String): User? {
+    fun authenticateUser(email: String, password: String): UserEntity? {
         val user = repository.findByEmail(email)
             ?: throw IllegalArgumentException("User with email $email not found")
 
@@ -46,17 +32,17 @@ class UserService(private val repository: UserRepository) {
     }
 
     @Transactional(readOnly = true)
-    fun getUserById(id: Long): User? {
+    fun getUserById(id: Long): UserEntity? {
         return repository.findById(id).orElse(null)
     }
 
     @Transactional(readOnly = true)
-    fun getUserByEmail(email: String): User? {
+    fun getUserByEmail(email: String): UserEntity? {
         return repository.findByEmail(email)
     }
 
     @Transactional(readOnly = true)
-    fun getAllUsers(): List<User> {
+    fun getAllUsers(): List<UserEntity> {
         return repository.findAll()
     }
 
@@ -68,8 +54,8 @@ class UserService(private val repository: UserRepository) {
         }
     }
 
-    private fun validateUserUniqueness(user: User) {
-        if (repository.findByEmail(user.email) != null) {
+    private fun validateUserUniqueness(userEntity: UserEntity) {
+        if (repository.findByEmail(userEntity.email) != null) {
             throw IllegalArgumentException("Email already exists.")
         }
     }

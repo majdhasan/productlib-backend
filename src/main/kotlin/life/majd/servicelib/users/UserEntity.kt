@@ -1,14 +1,24 @@
 package life.majd.servicelib.users
 
 import jakarta.persistence.*
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "users")
-data class User(
+data class UserEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
+
+    @Column(name = "first_name", nullable = false)
+    val firstName: String,
+
+    @Column(name = "last_name", nullable = false)
+    val lastName: String,
+
+    @Column(name = "date_of_birth")
+    val dateOfBirth: LocalDate? = null,
 
     @Column(nullable = false, unique = true)
     val email: String,

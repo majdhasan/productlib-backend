@@ -1,6 +1,8 @@
 package life.majd.servicelib.bookings
 
 import life.majd.servicelib.services.ServiceRepository
+import life.majd.servicelib.users.UserEntity
+import life.majd.servicelib.users.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -10,20 +12,50 @@ import java.time.format.DateTimeFormatter
 
 @Service
 @Transactional
-class BookingService(private val repository: BookingRepository, private val serviceRepository: ServiceRepository) {
+class BookingService(
+    private val repository: BookingRepository,
+    private val serviceRepository: ServiceRepository,
+    private val userRepository: UserRepository
+) {
 
-    fun createBooking(booking: Booking): Booking {
-        validateBooking(booking)
-        return repository.save(booking)
+    private fun createBooking(bookingEntity: BookingEntity): BookingEntity {
+        validateBooking(bookingEntity)
+        return repository.save(bookingEntity)
     }
 
-    fun getBookingById(id: Long): Booking {
-        return repository.findById(id).orElseThrow {
-            IllegalArgumentException("Booking with ID $id not found.")
-        }
+    fun bookService(request: BookingRequest): BookingEntity {
+        val service = serviceRepository.findById(request.serviceId)
+            .orElseThrow { IllegalArgumentException("Service not found") }
+
+        val userEntity: UserEntity =
+            userRepository.findByEmail(request.userEmail) ?: userRepository.save(
+                UserEntity(
+                    firstName = request.firstName ?: throw IllegalArgumentException("Customer First name is missing"),
+                    lastName = request.lastName ?: throw IllegalArgumentException("Customer Last name is missing"),
+                    email = request.userEmail,
+                    password = null,
+                    isRegistered = false,
+                    isVerified = false
+                )
+            )
+
+        val event = createBooking(
+            BookingEntity(
+                startTime = request.startTime,
+                endTime = request.startTime.plusMinutes(service.duration.toLong()),
+                location = service.location,
+                serviceEntity = service,
+                customer = userEntity
+            )
+        )
+        return event
     }
 
-    fun lookupBooking(email: String, bookingId: Long): Booking {
+    fun getBookingById(id: Long): BookingEntity = repository.findById(id).orElseThrow {
+        IllegalArgumentException("Booking with ID $id not found.")
+    }
+
+    fun lookupBooking(email: String, bookingId: Long): BookingEntity {
         val booking = repository.findById(bookingId).orElseThrow {
             IllegalArgumentException("Booking with ID $bookingId not found.")
         }
@@ -35,7 +67,7 @@ class BookingService(private val repository: BookingRepository, private val serv
         return booking
     }
 
-    fun markAsPaid(id: Long): Booking {
+    fun markAsPaid(id: Long): BookingEntity {
         val booking = repository.findById(id).orElseThrow { IllegalArgumentException("Booking with ID $id not found") }
         if (booking.isPaid) {
             throw IllegalStateException("Booking with ID $id is already paid.")
@@ -44,40 +76,37 @@ class BookingService(private val repository: BookingRepository, private val serv
         return repository.save(updatedBooking)
     }
 
-    fun getAllBookings(): List<Booking> = repository.findAll()
+    fun getAllBookings(): List<BookingEntity> = repository.findAll()
 
-    fun getBookingsByCustomer(customerId: Long): List<Booking> = repository.findAllByCustomerId(customerId)
+    fun getBookingsByCustomer(customerId: Long): List<BookingEntity> = repository.findAllByCustomerId(customerId)
 
-    fun getBookingsByService(serviceId: Long): List<Booking> = repository.findAllByServiceId(serviceId)
+    fun getBookingsByService(serviceId: Long): List<BookingEntity> = repository.findAllByServiceEntityId(serviceId)
 
-    fun getBookingsBetween(start: LocalDateTime, end: LocalDateTime): List<Booking> =
-        repository.findAllByStartTimeBetween(start, end)
-
-    fun updateBooking(id: Long, updatedBooking: Booking): Booking {
+    fun updateBooking(id: Long, updatedBookingEntity: BookingEntity): BookingEntity {
         val existingBooking = repository.findById(id).orElseThrow {
             IllegalArgumentException("Booking with ID $id not found")
         }
         val bookingToSave = existingBooking.copy(
-            notes = updatedBooking.notes,
-            startTime = updatedBooking.startTime,
-            endTime = updatedBooking.endTime,
-            location = updatedBooking.location,
+            notes = updatedBookingEntity.notes,
+            startTime = updatedBookingEntity.startTime,
+            endTime = updatedBookingEntity.endTime,
+            location = updatedBookingEntity.location,
             updatedAt = LocalDateTime.now(),
-            service = updatedBooking.service,
-            customer = updatedBooking.customer
+            serviceEntity = updatedBookingEntity.serviceEntity,
+            customer = updatedBookingEntity.customer
         )
         return repository.save(bookingToSave)
     }
 
-    private fun validateBooking(booking: Booking) {
-        if (booking.startTime.isAfter(booking.endTime)) {
+    private fun validateBooking(bookingEntity: BookingEntity) {
+        if (bookingEntity.startTime.isAfter(bookingEntity.endTime)) {
             throw IllegalArgumentException("Start time cannot be after end time.")
         }
 
-        val overlappingBookings = repository.findAllByServiceIdAndStartTimeBetween(
-            booking.service.id,
-            booking.startTime.minusSeconds(1),
-            booking.endTime.plusSeconds(1)
+        val overlappingBookings = repository.findAllByServiceEntityIdAndStartTimeBetween(
+            bookingEntity.serviceEntity.id,
+            bookingEntity.startTime.minusSeconds(1),
+            bookingEntity.endTime.plusSeconds(1)
         )
         if (overlappingBookings.isNotEmpty()) {
             throw IllegalArgumentException("The service is already booked for this time slot.")
@@ -94,7 +123,7 @@ class BookingService(private val repository: BookingRepository, private val serv
 
         val allSlots = generateTimeSlots(startOfDay, endOfDay, duration)
 
-        val bookedSlots = repository.findAllByServiceIdAndStartTimeBetween(
+        val bookedSlots = repository.findAllByServiceEntityIdAndStartTimeBetween(
             serviceId,
             date.atStartOfDay(),
             date.atTime(23, 59, 59)

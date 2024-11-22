@@ -8,29 +8,29 @@ import org.springframework.web.bind.annotation.*
 class ServiceController(private val service: ServiceService) {
 
     @PostMapping
-    fun createService(@RequestBody service: Service): ResponseEntity<Service> {
-        val createdService = this.service.createService(service)
+    fun createService(@RequestBody serviceEntity: ServiceEntity): ResponseEntity<ServiceEntity> {
+        val createdService = this.service.createService(serviceEntity)
         return ResponseEntity.ok(createdService)
     }
 
     @GetMapping
-    fun getAllServices(): ResponseEntity<List<Service>> {
+    fun getAllServices(): ResponseEntity<List<ServiceEntity>> {
         val services = service.getAllServices()
         return ResponseEntity.ok(services)
     }
 
     @GetMapping("/user/{userId}")
-    fun getServicesByUser(@PathVariable userId: Long): ResponseEntity<List<Service>> {
+    fun getServicesByUser(@PathVariable userId: Long): ResponseEntity<List<ServiceEntity>> {
         val services = service.getServicesByUser(userId)
         return ResponseEntity.ok(services)
     }
 
     @GetMapping("/{id}")
-    fun getServiceById(@PathVariable id: Long): ResponseEntity<Service> = ResponseEntity.ok(service.getServicesById(id))
+    fun getServiceById(@PathVariable id: Long): ResponseEntity<ServiceEntity> = ResponseEntity.ok(service.getServicesById(id))
 
     @PutMapping("/{id}")
-    fun updateService(@PathVariable id: Long, @RequestBody updatedService: Service): ResponseEntity<Service> {
-        val updated = service.updateService(id, updatedService)
+    fun updateService(@PathVariable id: Long, @RequestBody updatedServiceEntity: ServiceEntity): ResponseEntity<ServiceEntity> {
+        val updated = service.updateService(id, updatedServiceEntity)
         return ResponseEntity.ok(updated)
     }
 

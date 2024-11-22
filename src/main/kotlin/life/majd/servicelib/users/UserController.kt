@@ -8,24 +8,19 @@ import org.springframework.web.bind.annotation.*
 class UserController(private val service: UserService) {
 
     @PostMapping("/login")
-    fun loginUser(@RequestBody loginRequest: LoginRequest): ResponseEntity<User> {
+    fun loginUser(@RequestBody loginRequest: LoginRequest): ResponseEntity<UserEntity> {
         val user = service.authenticateUser(loginRequest.email, loginRequest.password)
             ?: return ResponseEntity.status(401).body(null) // Unauthorized
         return ResponseEntity.ok(user)
     }
 
     @PostMapping
-    fun createUser(@RequestBody user: User): ResponseEntity<User> {
-        return ResponseEntity.ok(service.createUser(user))
-    }
-
-    @PostMapping("/guest")
-    fun createGuestUser(@RequestParam email: String): ResponseEntity<User> {
-        return ResponseEntity.ok(service.createGuestUser(email))
+    fun createUser(@RequestBody userEntity: UserEntity): ResponseEntity<UserEntity> {
+        return ResponseEntity.ok(service.createUser(userEntity))
     }
 
     @GetMapping("/{id}")
-    fun getUserById(@PathVariable id: Long): ResponseEntity<User> {
+    fun getUserById(@PathVariable id: Long): ResponseEntity<UserEntity> {
         val user = service.getUserById(id) ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(user)
     }

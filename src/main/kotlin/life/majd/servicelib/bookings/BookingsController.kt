@@ -1,8 +1,5 @@
 package life.majd.servicelib.bookings
 
-import life.majd.servicelib.services.ServiceRepository
-import life.majd.servicelib.users.User
-import life.majd.servicelib.users.UserRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -16,25 +13,23 @@ import java.time.LocalDate
 @RestController
 @RequestMapping("/api/bookings")
 class BookingsController(
-    private val bookingService: BookingService,
-    private val userRepository: UserRepository,
-    private val serviceRepository: ServiceRepository
+    private val bookingService: BookingService
 ) {
 
     @GetMapping
-    fun getAllBookings(): ResponseEntity<List<Booking>> {
+    fun getAllBookings(): ResponseEntity<List<BookingEntity>> {
         val bookings = bookingService.getAllBookings()
         return ResponseEntity.ok(bookings)
     }
 
     @GetMapping("/{id}")
-    fun getBookingById(@PathVariable id: Long): ResponseEntity<Booking> {
+    fun getBookingById(@PathVariable id: Long): ResponseEntity<BookingEntity> {
         val booking = bookingService.getBookingById(id)
         return ResponseEntity.ok(booking)
     }
 
     @GetMapping("/user/{customerId}")
-    fun getBookingsByCustomer(@PathVariable customerId: Long): ResponseEntity<List<Booking>> {
+    fun getBookingsByCustomer(@PathVariable customerId: Long): ResponseEntity<List<BookingEntity>> {
         val bookings = bookingService.getBookingsByCustomer(customerId)
         return ResponseEntity.ok(bookings)
     }
@@ -43,50 +38,27 @@ class BookingsController(
     fun lookupBooking(
         @RequestParam email: String,
         @RequestParam bookingId: Long
-    ): ResponseEntity<Booking> {
+    ): ResponseEntity<BookingEntity> {
         val booking = bookingService.lookupBooking(email, bookingId)
         return ResponseEntity.ok(booking)
     }
 
     @GetMapping("/service/{serviceId}")
-    fun getBookingsByService(@PathVariable serviceId: Long): ResponseEntity<List<Booking>> {
+    fun getBookingsByService(@PathVariable serviceId: Long): ResponseEntity<List<BookingEntity>> {
         val bookings = bookingService.getBookingsByService(serviceId)
         return ResponseEntity.ok(bookings)
     }
 
     @PostMapping("/{id}/pay")
-    fun payForBooking(@PathVariable id: Long): ResponseEntity<Booking> {
+    fun payForBooking(@PathVariable id: Long): ResponseEntity<BookingEntity> {
         val updatedBooking = bookingService.markAsPaid(id)
         return ResponseEntity.ok(updatedBooking)
     }
 
     @PostMapping
-    fun bookService(@RequestBody request: BookingRequest): ResponseEntity<Booking> {
-        val service = serviceRepository.findById(request.serviceId)
-            .orElseThrow { IllegalArgumentException("Service not found") }
+    fun bookService(@RequestBody request: BookingRequest): ResponseEntity<BookingEntity> =
+        ResponseEntity.ok(bookingService.bookService(request))
 
-        val user =
-            userRepository.findByEmail(request.userEmail) ?: userRepository.save(
-                User(
-                    email = request.userEmail,
-                    password = null,
-                    isRegistered = false,
-                    isVerified = false
-                )
-            )
-
-        val event = bookingService.createBooking(
-            Booking(
-                startTime = request.startTime,
-                endTime = request.startTime.plusMinutes(service.duration.toLong()),
-                location = service.location,
-                service = service,
-                customer = user
-            )
-        )
-
-        return ResponseEntity.ok(event)
-    }
 
     @GetMapping("/service/{serviceId}/available-slots")
     fun getAvailableSlots(

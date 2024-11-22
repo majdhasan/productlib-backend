@@ -7,27 +7,27 @@ import java.time.LocalDateTime
 @Transactional
 class ServiceService(private val repository: ServiceRepository) {
 
-    fun createService(service: Service): Service {
-        validateService(service)
-        return repository.save(service)
+    fun createService(serviceEntity: ServiceEntity): ServiceEntity {
+        validateService(serviceEntity)
+        return repository.save(serviceEntity)
     }
 
-    fun getAllServices(): List<Service> = repository.findAll()
+    fun getAllServices(): List<ServiceEntity> = repository.findAll()
 
-    fun getServicesByUser(userId: Long): List<Service> = repository.findByUserId(userId)
+    fun getServicesByUser(userId: Long): List<ServiceEntity> = repository.findByUserEntityId(userId)
 
-    fun getServicesById(serviceId: Long): Service =
+    fun getServicesById(serviceId: Long): ServiceEntity =
         repository.findById(serviceId).orElseThrow { IllegalArgumentException("Service with ID $serviceId not found") }
 
-    fun updateService(id: Long, updatedService: Service): Service {
+    fun updateService(id: Long, updatedServiceEntity: ServiceEntity): ServiceEntity {
         val existingService = repository.findById(id).orElseThrow {
             IllegalArgumentException("Service with ID $id not found")
         }
         val serviceToSave = existingService.copy(
-            name = updatedService.name,
-            description = updatedService.description,
-            cost = updatedService.cost,
-            duration = updatedService.duration,
+            name = updatedServiceEntity.name,
+            description = updatedServiceEntity.description,
+            cost = updatedServiceEntity.cost,
+            duration = updatedServiceEntity.duration,
             updatedAt = LocalDateTime.now()
         )
         return repository.save(serviceToSave)
@@ -41,11 +41,11 @@ class ServiceService(private val repository: ServiceRepository) {
         }
     }
 
-    private fun validateService(service: Service) {
-        if (service.cost <= 0) {
+    private fun validateService(serviceEntity: ServiceEntity) {
+        if (serviceEntity.cost <= 0) {
             throw IllegalArgumentException("Cost must be greater than zero.")
         }
-        if (service.duration <= 0) {
+        if (serviceEntity.duration <= 0) {
             throw IllegalArgumentException("Duration must be greater than zero.")
         }
     }

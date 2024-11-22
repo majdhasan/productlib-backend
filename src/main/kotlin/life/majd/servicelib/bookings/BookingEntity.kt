@@ -1,13 +1,13 @@
 package life.majd.servicelib.bookings
 
 import jakarta.persistence.*
-import life.majd.servicelib.services.Service
-import life.majd.servicelib.users.User
+import life.majd.servicelib.services.ServiceEntity
+import life.majd.servicelib.users.UserEntity
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "bookings")
-data class Booking(
+data class BookingEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
@@ -33,9 +33,9 @@ data class Booking(
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
-    val customer: User,
+    val customer: UserEntity,
 
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
-    val service: Service // The service being booked
+    val serviceEntity: ServiceEntity
 )

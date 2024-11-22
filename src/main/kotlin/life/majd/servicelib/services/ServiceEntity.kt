@@ -1,12 +1,12 @@
 package life.majd.servicelib.services
 
 import jakarta.persistence.*
-import life.majd.servicelib.users.User
+import life.majd.servicelib.users.UserEntity
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "services")
-data class Service(
+data class ServiceEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
@@ -26,6 +26,15 @@ data class Service(
     @Column(nullable = false)
     val duration: Int,
 
+    @Column
+    val address: String? = null,
+
+    @Column(nullable = true)
+    val latitude: Double? = null,
+
+    @Column(nullable = true)
+    val longitude: Double? = null,
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     val category: ServiceCategory,
@@ -38,5 +47,5 @@ data class Service(
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    val user: User
+    val userEntity: UserEntity
 )

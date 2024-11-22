@@ -1,6 +1,9 @@
 CREATE TABLE users
 (
     id            SERIAL PRIMARY KEY,
+    first_name    VARCHAR(255) NOT NULL,
+    last_name     VARCHAR(255) NOT NULL,
+    date_of_birth DATE,
     email         VARCHAR(100) UNIQUE,
     password      VARCHAR(255),
     is_registered BOOLEAN   DEFAULT FALSE,
@@ -18,6 +21,9 @@ CREATE TABLE services
     category    TEXT           NOT NULL,
     cost        DECIMAL(10, 2) NOT NULL,
     duration    INT            NOT NULL,
+    address     VARCHAR(255),
+    latitude    NUMERIC(9, 6),
+    longitude   NUMERIC(9, 6),
     user_id     BIGINT         NOT NULL,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
