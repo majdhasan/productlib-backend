@@ -12,6 +12,19 @@ class UserService(private val repository: UserRepository) {
         return repository.save(userEntity)
     }
 
+
+    fun updateUserProfile(id: Long, updatedUser: UserEntity): UserEntity {
+        val existingUser = repository.findById(id).orElseThrow {
+            IllegalArgumentException("User with ID $id not found")
+        }
+
+        existingUser.firstName = updatedUser.firstName
+        existingUser.lastName = updatedUser.lastName
+        existingUser.dateOfBirth = updatedUser.dateOfBirth
+
+        return repository.save(existingUser)
+    }
+
     fun authenticateUser(email: String, password: String): UserEntity? {
         val user = repository.findByEmail(email)
             ?: throw IllegalArgumentException("User with email $email not found")

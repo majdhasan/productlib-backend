@@ -14,6 +14,18 @@ class UserController(private val service: UserService) {
         return ResponseEntity.ok(user)
     }
 
+    @GetMapping("/profile/{id}")
+    fun getUserProfile(@PathVariable id: Long): ResponseEntity<UserEntity> {
+        val user = service.getUserById(id) ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(user)
+    }
+
+    @PutMapping("/profile/{id}")
+    fun updateUserProfile(@PathVariable id: Long, @RequestBody updatedUser: UserEntity): ResponseEntity<UserEntity> {
+        val user = service.updateUserProfile(id, updatedUser)
+        return ResponseEntity.ok(user)
+    }
+
     @PostMapping
     fun createUser(@RequestBody userEntity: UserEntity): ResponseEntity<UserEntity> {
         return ResponseEntity.ok(service.createUser(userEntity))

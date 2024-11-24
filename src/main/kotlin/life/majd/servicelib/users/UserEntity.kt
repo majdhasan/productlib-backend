@@ -12,13 +12,13 @@ data class UserEntity(
     val id: Long = 0,
 
     @Column(name = "first_name", nullable = false)
-    val firstName: String,
+    var firstName: String,
 
     @Column(name = "last_name", nullable = false)
-    val lastName: String,
+    var lastName: String,
 
     @Column(name = "date_of_birth")
-    val dateOfBirth: LocalDate? = null,
+    var dateOfBirth: LocalDate? = null,
 
     @Column(nullable = false, unique = true)
     val email: String,
