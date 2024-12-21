@@ -1,1 +1,1 @@
-rootProject.name = "servicelib"
+rootProject.name = "productlib"

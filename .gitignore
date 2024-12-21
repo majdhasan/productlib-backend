@@ -39,4 +39,4 @@ out/
 ### Kotlin ###
 .kotlin
 
-/docker/servicelib/postgres-servicelib-data/
+/docker/productlib/postgres-productlib-data/
