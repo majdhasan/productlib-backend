@@ -1,8 +1,9 @@
 package com.meshhdawi.productlib.orders
 
+import com.meshhdawi.productlib.cart.CartEntity
 import jakarta.persistence.*
 import com.meshhdawi.productlib.users.UserEntity
-import com.meshhdawi.productlib.cart.CartEntity
+
 import java.time.LocalDateTime
 
 @Entity

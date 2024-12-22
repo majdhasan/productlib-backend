@@ -14,6 +14,9 @@ data class ProductEntity(
     val name: String,
 
     @Column
+    val image: String,
+
+    @Column
     val description: String? = null,
 
     @Column(nullable = false)

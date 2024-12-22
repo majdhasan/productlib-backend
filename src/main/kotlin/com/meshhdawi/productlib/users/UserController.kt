@@ -8,11 +8,15 @@ import org.springframework.web.bind.annotation.*
 class UserController(private val service: UserService) {
 
     @PostMapping("/login")
-    fun loginUser(@RequestBody loginRequest: LoginRequest): ResponseEntity<UserEntity> {
+    fun loginUser(@RequestBody loginRequest: LoginRequest): ResponseEntity<Map<String, Any>> {
         val user = service.authenticateUser(loginRequest.email, loginRequest.password)
             ?: return ResponseEntity.status(401).body(null) // Unauthorized
-        return ResponseEntity.ok(user)
+
+        val cart = service.getOrCreateCartForUser(user)
+
+        return ResponseEntity.ok(mapOf("user" to user, "cart" to cart))
     }
+
 
     @GetMapping("/profile/{id}")
     fun getUserProfile(@PathVariable id: Long): ResponseEntity<UserEntity> {

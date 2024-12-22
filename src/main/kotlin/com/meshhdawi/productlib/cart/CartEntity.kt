@@ -1,7 +1,7 @@
 package com.meshhdawi.productlib.cart
 
-import jakarta.persistence.*
 import com.meshhdawi.productlib.users.UserEntity
+import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
@@ -15,9 +15,13 @@ data class CartEntity(
     @JoinColumn(name = "user_id", nullable = false)
     val user: UserEntity,
 
+    @OneToMany(mappedBy = "cart", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val items: MutableList<CartItemEntity> = mutableListOf(),
+
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "updated_at")
-    val updatedAt: LocalDateTime = LocalDateTime.now()
+    var updatedAt: LocalDateTime = LocalDateTime.now()
 )
+

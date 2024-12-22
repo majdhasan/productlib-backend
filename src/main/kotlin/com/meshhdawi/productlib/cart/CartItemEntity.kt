@@ -1,5 +1,6 @@
 package com.meshhdawi.productlib.cart
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import com.meshhdawi.productlib.products.ProductEntity
 import java.time.LocalDateTime
@@ -13,6 +14,7 @@ data class CartItemEntity(
 
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
+    @JsonIgnore
     val cart: CartEntity,
 
     @ManyToOne
@@ -20,11 +22,11 @@ data class CartItemEntity(
     val product: ProductEntity,
 
     @Column(nullable = false)
-    val quantity: Int = 1,
+    var quantity: Int = 1,
 
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "updated_at")
-    val updatedAt: LocalDateTime = LocalDateTime.now()
+    var updatedAt: LocalDateTime = LocalDateTime.now()
 )

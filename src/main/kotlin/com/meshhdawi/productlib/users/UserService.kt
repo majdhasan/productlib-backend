@@ -1,17 +1,26 @@
 package com.meshhdawi.productlib.users
 
+import com.meshhdawi.productlib.cart.CartEntity
+import com.meshhdawi.productlib.cart.CartRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
-class UserService(private val repository: UserRepository) {
+class UserService(
+    private val repository: UserRepository,
+    private val cartRepository: CartRepository
+) {
 
     fun createUser(userEntity: UserEntity): UserEntity {
         validateUserUniqueness(userEntity)
         return repository.save(userEntity)
     }
 
+    fun getOrCreateCartForUser(user: UserEntity): CartEntity {
+        val existingCart = cartRepository.findByUserId(user.id)
+        return existingCart ?: cartRepository.save(CartEntity(user = user, items = mutableListOf()))
+    }
 
     fun updateUserProfile(id: Long, updatedUser: UserEntity): UserEntity {
         val existingUser = repository.findById(id).orElseThrow {
@@ -45,8 +54,8 @@ class UserService(private val repository: UserRepository) {
     }
 
     @Transactional(readOnly = true)
-    fun getUserById(id: Long): UserEntity? {
-        return repository.findById(id).orElse(null)
+    fun getUserById(userId: Long): UserEntity {
+        return repository.findById(userId).orElseThrow { IllegalArgumentException("User with ID $userId not found") }
     }
 
     @Transactional(readOnly = true)
