@@ -1,8 +1,8 @@
 package com.meshhdawi.productlib.cart
 
+import com.meshhdawi.productlib.users.UserEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import com.meshhdawi.productlib.users.UserEntity
 import java.time.LocalDateTime
 
 @Service
@@ -18,6 +18,10 @@ class CartService(private val repository: CartRepository) {
         return repository.save(cart)
     }
 
+    fun getCartById(cartId: Long): CartEntity {
+        return repository.findById(cartId).orElseThrow { IllegalArgumentException("Cart not found") }
+    }
+
 
     fun getCartByUserId(userId: Long): CartEntity? {
         // Fetch the cart for the given userId using the repository
@@ -27,6 +31,10 @@ class CartService(private val repository: CartRepository) {
     fun getCartByUser(user: UserEntity): CartEntity {
         return repository.findByUser(user)
             ?: throw IllegalArgumentException("Cart for user ${user.id} not found")
+    }
+
+    fun findCartByUserIdAndStatus(userId: Long, status: CartStatus): CartEntity? {
+        return repository.findByUserIdAndStatusIs(userId, status)
     }
 
     fun clearCart(cart: CartEntity) {

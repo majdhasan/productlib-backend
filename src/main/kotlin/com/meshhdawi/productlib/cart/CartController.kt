@@ -17,9 +17,19 @@ class CartController(
     private val cartRepository: CartRepository
 ) {
 
-    @GetMapping("/{userId}")
+    @GetMapping("/users/{userId}")
     fun getCart(@PathVariable userId: Long): ResponseEntity<CartEntity?> {
         val cart = cartService.getCartByUserId(userId)
+        return if (cart != null) {
+            ResponseEntity.ok(cart) // Return 200 OK with the cart data
+        } else {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(null) // Return 404 Not Found if no cart exists
+        }
+    }
+
+    @GetMapping("/{cartId}")
+    fun getCartById(@PathVariable cartId: Long): ResponseEntity<CartEntity?> {
+        val cart = cartService.getCartById(cartId)
         return if (cart != null) {
             ResponseEntity.ok(cart) // Return 200 OK with the cart data
         } else {

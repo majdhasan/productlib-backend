@@ -2,6 +2,8 @@ package com.meshhdawi.productlib.users
 
 import com.meshhdawi.productlib.cart.CartEntity
 import com.meshhdawi.productlib.cart.CartRepository
+import com.meshhdawi.productlib.cart.CartService
+import com.meshhdawi.productlib.cart.CartStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -9,7 +11,8 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class UserService(
     private val repository: UserRepository,
-    private val cartRepository: CartRepository
+    private val cartRepository: CartRepository,
+    private val cartService: CartService
 ) {
 
     fun createUser(userEntity: UserEntity): UserEntity {
@@ -18,9 +21,8 @@ class UserService(
     }
 
     fun getOrCreateCartForUser(user: UserEntity): CartEntity {
-        val existingCart = cartRepository.findByUserId(user.id)
-        return existingCart ?: cartRepository.save(CartEntity(user = user, items = mutableListOf()))
-    }
+        val existingCart = cartService.findCartByUserIdAndStatus(user.id, CartStatus.PENDING)
+        return existingCart ?: cartRepository.save(CartEntity(user = user, items = mutableListOf()))    }
 
     fun updateUserProfile(id: Long, updatedUser: UserEntity): UserEntity {
         val existingUser = repository.findById(id).orElseThrow {
