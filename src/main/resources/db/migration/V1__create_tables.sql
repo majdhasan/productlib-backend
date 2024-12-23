@@ -41,12 +41,14 @@ CREATE TABLE cart
 -- Cart Items Table
 CREATE TABLE cart_items
 (
-    id         SERIAL PRIMARY KEY,
-    cart_id    BIGINT NOT NULL,
-    product_id BIGINT NOT NULL,
-    quantity   INT    NOT NULL DEFAULT 1,
-    created_at TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    id            SERIAL PRIMARY KEY,
+    cart_id       BIGINT NOT NULL,
+    product_id    BIGINT NOT NULL,
+    product_price DECIMAL(10, 2), -- Nullable, filled when the order is created
+    notes         TEXT,
+    quantity      INT    NOT NULL DEFAULT 1,
+    created_at    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_cart_items_cart FOREIGN KEY (cart_id) REFERENCES cart (id) ON DELETE CASCADE,
     CONSTRAINT fk_cart_items_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
 );

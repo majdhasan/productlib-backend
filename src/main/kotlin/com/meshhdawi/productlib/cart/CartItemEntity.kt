@@ -24,6 +24,12 @@ data class CartItemEntity(
     @Column(nullable = false)
     var quantity: Int = 1,
 
+    @Column(nullable = true)
+    var productPrice: Double? = null, // Store the price of the product at the time of order creation
+
+    @Column
+    var notes: String?,
+
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 

@@ -6,6 +6,7 @@ import com.meshhdawi.productlib.products.ProductService
 import com.meshhdawi.productlib.users.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/api/cart")
@@ -56,17 +57,17 @@ class CartController(
     }
 
 
-    // Add a product to the cart
     @PostMapping("/add")
-    fun addToCart(
-        @RequestParam userId: Long,
-        @RequestParam productId: Long,
-        @RequestParam quantity: Int
-    ): ResponseEntity<CartItemEntity> {
-        val user = userService.getUserById(userId)
-        val cart = cartService.getCartByUser(user)
-        val product = productService.getProductsById(productId)
-        val cartItem = cartItemService.addItemToCart(cart, product, quantity)
+    fun addToCart(@RequestBody cartItemRequest: CartItemRequest): ResponseEntity<CartItemEntity> {
+        // Validate the product ID
+        if (cartItemRequest.productId <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(null) // Return 400 Bad Request if the productId is invalid
+        }
+
+        val cart = cartService.getCartById(cartItemRequest.cartId)
+        val product = productService.getProductsById(cartItemRequest.productId)
+        val cartItem = cartItemService.addItemToCart(cart, product, cartItemRequest.notes, cartItemRequest.quantity)
         return ResponseEntity.ok(cartItem)
     }
 
@@ -96,4 +97,34 @@ class CartController(
         cartService.clearCart(cart)
         return ResponseEntity.noContent().build()
     }
+
+    // Update the entire cart
+    @PutMapping("/{cartId}")
+    fun updateCart(
+        @PathVariable cartId: Long,
+        @RequestBody updatedCart: CartUpdateRequest
+    ): ResponseEntity<CartEntity> {
+        // Retrieve the cart
+        val cart = cartService.getCartById(cartId)
+
+        // Update cart items
+        val updatedItems = updatedCart.items.map { item ->
+            val product = productService.getProductsById(item.productId)
+            cartItemService.updateItemInCart(cart, product, item.quantity, item.notes)
+        }
+
+        // Update the cart status, converting the string to the enum value
+        try {
+            cart.status = CartStatus.valueOf(updatedCart.status.uppercase())
+        } catch (e: IllegalArgumentException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null) // Return 400 if status is invalid
+        }
+
+        cart.updatedAt = LocalDateTime.now()
+
+        // Save the updated cart
+        val savedCart = cartRepository.save(cart)
+        return ResponseEntity.ok(savedCart) // Return the updated cart
+    }
+
 }

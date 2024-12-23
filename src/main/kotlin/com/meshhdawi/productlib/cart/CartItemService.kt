@@ -13,11 +13,25 @@ class CartItemService(private val repository: CartItemRepository) {
         return repository.findById(id).orElseThrow { IllegalArgumentException("Cart item with ID $id not found") }
     }
 
-    fun addItemToCart(cart: CartEntity, product: ProductEntity, quantity: Int): CartItemEntity {
-        val existingItem = repository.findByCartAndProduct(cart, product)
+    fun updateItemInCart(cart: CartEntity, product: ProductEntity, quantity: Int, notes: String?): CartItemEntity {
+        val cartItem = cart.items.find { it.product.id == product.id }
+            ?: throw IllegalArgumentException("Product not found in the cart")
+
+        cartItem.quantity = quantity
+        cartItem.notes = notes
+        cartItem.updatedAt = LocalDateTime.now()
+
+        return repository.save(cartItem)
+    }
+
+    fun addItemToCart(cart: CartEntity, product: ProductEntity, notes: String?, quantity: Int): CartItemEntity {
+        // Check for an existing item with the same product and notes in the cart
+        val existingItem = repository.findByCartAndProductAndNotes(cart, product, notes)
+
         if (existingItem != null) {
-            // Update quantity if the product already exists in the cart
+            // Update quantity if an item with the same product and notes exists
             existingItem.quantity += quantity
+            existingItem.updatedAt = LocalDateTime.now()
             return repository.save(existingItem)
         } else {
             // Create a new cart item
@@ -25,6 +39,7 @@ class CartItemService(private val repository: CartItemRepository) {
                 cart = cart,
                 product = product,
                 quantity = quantity,
+                notes = notes, // Assign notes here
                 createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now()
             )

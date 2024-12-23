@@ -20,7 +20,7 @@ class UserController(private val service: UserService) {
 
     @GetMapping("/profile/{id}")
     fun getUserProfile(@PathVariable id: Long): ResponseEntity<UserEntity> {
-        val user = service.getUserById(id) ?: return ResponseEntity.notFound().build()
+        val user = service.getUserById(id)
         return ResponseEntity.ok(user)
     }
 
@@ -37,7 +37,7 @@ class UserController(private val service: UserService) {
 
     @GetMapping("/{id}")
     fun getUserById(@PathVariable id: Long): ResponseEntity<UserEntity> {
-        val user = service.getUserById(id) ?: return ResponseEntity.notFound().build()
+        val user = service.getUserById(id)
         return ResponseEntity.ok(user)
     }
 
