@@ -35,6 +35,9 @@ data class UserEntity(
     @Column(name = "is_verified", nullable = false)
     var isVerified: Boolean = false,
 
+    @Column(name = "preferred_language", nullable = false)
+    var preferredLanguage: String = "en",
+
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 

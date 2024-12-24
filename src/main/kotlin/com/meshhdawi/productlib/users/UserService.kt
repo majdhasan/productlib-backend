@@ -24,15 +24,26 @@ class UserService(
         val existingCart = cartService.findCartByUserIdAndStatus(user.id, CartStatus.PENDING)
         return existingCart ?: cartRepository.save(CartEntity(user = user, items = mutableListOf()))    }
 
-    fun updateUserProfile(id: Long, updatedUser: UserEntity): UserEntity {
+    fun updateUserProfile(id: Long, updatedUser: ProfileUpdateRequest): UserEntity {
         val existingUser = repository.findById(id).orElseThrow {
             IllegalArgumentException("User with ID $id not found")
         }
 
-        existingUser.firstName = updatedUser.firstName
-        existingUser.lastName = updatedUser.lastName
-        existingUser.dateOfBirth = updatedUser.dateOfBirth
+        // Update the fields only if provided in the update request
+        updatedUser.firstName?.let {
+            existingUser.firstName = it
+        }
+        updatedUser.lastName?.let {
+            existingUser.lastName = it
+        }
+        updatedUser.dateOfBirth?.let {
+            existingUser.dateOfBirth = it
+        }
+        updatedUser.preferredLanguage?.let {
+            existingUser.preferredLanguage = it
+        }
 
+        // Save and return the updated user
         return repository.save(existingUser)
     }
 
