@@ -27,8 +27,3 @@ data class CartEntity(
     @Column(name = "updated_at")
     var updatedAt: LocalDateTime = LocalDateTime.now()
 )
-
-enum class CartStatus {
-    PENDING, // Cart is still being edited or added to
-    ORDERED  // Cart has been checked out
-}
