@@ -1,12 +1,19 @@
 package com.meshhdawi.productlib.cart
 
 
-import org.springframework.web.bind.annotation.*
 import com.meshhdawi.productlib.products.ProductService
 import com.meshhdawi.productlib.users.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import java.time.LocalDateTime
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/cart")
@@ -18,31 +25,15 @@ class CartController(
     private val cartRepository: CartRepository
 ) {
 
-    @GetMapping("/users/{userId}")
-    fun getCart(@PathVariable userId: Long): ResponseEntity<CartEntity?> {
-        val cart = cartService.getCartByUserId(userId)
-        return if (cart != null) {
-            ResponseEntity.ok(cart) // Return 200 OK with the cart data
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(null) // Return 404 Not Found if no cart exists
-        }
-    }
-
     @GetMapping("/{cartId}")
-    fun getCartById(@PathVariable cartId: Long): ResponseEntity<CartEntity?> {
-        val cart = cartService.getCartById(cartId)
-        return if (cart != null) {
-            ResponseEntity.ok(cart) // Return 200 OK with the cart data
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(null) // Return 404 Not Found if no cart exists
-        }
-    }
+    fun getCartById(@PathVariable cartId: Long): ResponseEntity<CartEntity?> =
+        ResponseEntity.ok(cartService.getCartById(cartId))
+
 
     @PostMapping
     fun createCart(@RequestParam userId: Long): ResponseEntity<CartEntity> {
         // Retrieve the UserEntity using the userId
         val user = userService.getUserById(userId)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null) // Return 404 if user not found
 
         // Create a new cart with the UserEntity
         val newCart = CartEntity(
@@ -87,44 +78,6 @@ class CartController(
         val cartItem = cartItemService.getCartItemById(cartItemId)
         cartItemService.removeItemFromCart(cartItem)
         return ResponseEntity.noContent().build()
-    }
-
-    // Clear the cart
-    @DeleteMapping("/clear")
-    fun clearCart(@RequestParam userId: Long): ResponseEntity<Void> {
-        val user = userService.getUserById(userId)
-        val cart = cartService.getCartByUser(user)
-        cartService.clearCart(cart)
-        return ResponseEntity.noContent().build()
-    }
-
-    // Update the entire cart
-    @PutMapping("/{cartId}")
-    fun updateCart(
-        @PathVariable cartId: Long,
-        @RequestBody updatedCart: CartUpdateRequest
-    ): ResponseEntity<CartEntity> {
-        // Retrieve the cart
-        val cart = cartService.getCartById(cartId)
-
-        // Update cart items
-        val updatedItems = updatedCart.items.map { item ->
-            val product = productService.getProductsById(item.productId)
-            cartItemService.updateItemInCart(cart, product, item.quantity, item.notes)
-        }
-
-        // Update the cart status, converting the string to the enum value
-        try {
-            cart.status = CartStatus.valueOf(updatedCart.status.uppercase())
-        } catch (e: IllegalArgumentException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null) // Return 400 if status is invalid
-        }
-
-        cart.updatedAt = LocalDateTime.now()
-
-        // Save the updated cart
-        val savedCart = cartRepository.save(cart)
-        return ResponseEntity.ok(savedCart) // Return the updated cart
     }
 
 }

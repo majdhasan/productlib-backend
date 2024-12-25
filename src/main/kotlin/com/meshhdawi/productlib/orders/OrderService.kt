@@ -1,85 +1,63 @@
 package com.meshhdawi.productlib.orders
-
-import com.meshhdawi.productlib.users.UserEntity
+import com.meshhdawi.productlib.cart.CartRepository
+import com.meshhdawi.productlib.cart.CartStatus
 import com.meshhdawi.productlib.users.UserRepository
+import com.meshhdawi.productlib.users.UserService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
 
 @Service
-@Transactional
 class OrderService(
-    private val repository: OrderRepository,
-    private val userRepository: UserRepository
+    private val orderRepository: OrderRepository,
+    private val cartRepository: CartRepository,
+    private val userRepository: UserRepository,
+    private val userService: UserService
 ) {
 
-    private fun createOrder(orderEntity: OrderEntity): OrderEntity {
-        return repository.save(orderEntity)
+    fun getOrderById(id: Long): OrderEntity {
+        return orderRepository.findById(id)
+            .orElseThrow { IllegalArgumentException("Order not found with ID: $id") }
     }
 
-    private fun validateAndCreateGuestUser(request: OrderRequest): UserEntity {
-        if (request.firstName.isNullOrBlank()) {
-            throw IllegalArgumentException("Customer first name is missing")
-        }
-        if (request.lastName.isNullOrBlank()) {
-            throw IllegalArgumentException("Customer last name is missing")
-        }
-        if (request.phoneNumber.isNullOrBlank()) {
-            throw IllegalArgumentException("Customer phone number is missing")
+    fun getOrdersByCustomer(customerId: Long): List<OrderEntity> {
+        val user = userService.getUserById(customerId)
+        return orderRepository.findByCustomerId(user)
+    }
+
+    @Transactional
+    fun createOrder(orderRequest: OrderRequest): OrderEntity {
+        // Fetch and validate the cart
+        val cart = cartRepository.findById(orderRequest.cartId)
+            .orElseThrow { IllegalArgumentException("Cart not found with ID: ${orderRequest.cartId}") }
+
+        // Fetch and validate the cart
+        val customer = userRepository.findById(orderRequest.customerId)
+            .orElseThrow { IllegalArgumentException("Customer not found with ID: ${orderRequest.customerId}") }
+
+        if (cart.status != CartStatus.PENDING) {
+            throw IllegalStateException("Cart is not in PENDING status.")
         }
 
-        return userRepository.save(
-            UserEntity(
-                firstName = request.firstName,
-                lastName = request.lastName,
-                email = request.userEmail,
-                phoneNumber = request.phoneNumber,
-                password = null,
-                isRegistered = false,
-                isVerified = false
-            )
+        // Create the order
+        val newOrder = OrderEntity(
+            cart = cart,
+            customerId = customer,
+            type = orderRequest.orderType,
+            address = orderRequest.address,
+            phone = orderRequest.phone,
+            firstName = orderRequest.firstName,
+            lastName = orderRequest.lastName,
+            notes = orderRequest.orderNotes,
+            wishedPickupTime = orderRequest.wishedPickupTime,
         )
+
+        // Save the order
+        val savedOrder = orderRepository.save(newOrder)
+
+        // Update the cart status
+        cart.status = CartStatus.ORDERED
+        cartRepository.save(cart)
+
+        return savedOrder
     }
-
-    fun getOrderById(id: Long): OrderEntity = repository.findById(id).orElseThrow {
-        IllegalArgumentException("Order with ID $id not found.")
-    }
-
-    fun lookupOrder(email: String, orderId: Long): OrderEntity {
-        val order = repository.findById(orderId).orElseThrow {
-            IllegalArgumentException("Order with ID $orderId not found.")
-        }
-
-        if (order.customer.email != email) {
-            throw IllegalArgumentException("Email does not match the order.")
-        }
-
-        return order
-    }
-
-    fun markAsPaid(id: Long): OrderEntity {
-        val order = repository.findById(id).orElseThrow { IllegalArgumentException("Order with ID $id not found") }
-        if (order.isPaid) {
-            throw IllegalStateException("Order with ID $id is already paid.")
-        }
-        val updatedOrder = order.copy(isPaid = true, updatedAt = LocalDateTime.now())
-        return repository.save(updatedOrder)
-    }
-
-    fun getAllOrders(): List<OrderEntity> = repository.findAll()
-
-    fun getOrdersByCustomer(customerId: Long): List<OrderEntity> = repository.findAllByCustomerId(customerId)
-
-    fun updateOrder(id: Long, updatedOrderEntity: OrderEntity): OrderEntity {
-        val existingOrder = repository.findById(id).orElseThrow {
-            IllegalArgumentException("Order with ID $id not found")
-        }
-        val orderToSave = existingOrder.copy(
-            notes = updatedOrderEntity.notes,
-            updatedAt = LocalDateTime.now(),
-            customer = updatedOrderEntity.customer
-        )
-        return repository.save(orderToSave)
-    }
-
 }

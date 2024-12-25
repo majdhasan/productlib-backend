@@ -1,11 +1,9 @@
 package com.meshhdawi.productlib.orders
 
+import com.meshhdawi.productlib.users.UserEntity
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.query.Param
-import java.time.LocalDateTime
 
 interface OrderRepository : JpaRepository<OrderEntity, Long> {
 
-    fun findAllByCustomerId(customerId: Long): List<OrderEntity>
+    fun findByCustomerId(customerId: UserEntity): List<OrderEntity>
 }
