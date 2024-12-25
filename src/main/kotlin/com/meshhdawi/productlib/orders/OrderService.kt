@@ -1,4 +1,5 @@
 package com.meshhdawi.productlib.orders
+import com.meshhdawi.productlib.cart.CartItemService
 import com.meshhdawi.productlib.cart.CartRepository
 import com.meshhdawi.productlib.cart.CartStatus
 import com.meshhdawi.productlib.users.UserRepository
@@ -11,7 +12,8 @@ class OrderService(
     private val orderRepository: OrderRepository,
     private val cartRepository: CartRepository,
     private val userRepository: UserRepository,
-    private val userService: UserService
+    private val userService: UserService,
+    private val cartItemService: CartItemService
 ) {
 
     fun getOrderById(id: Long): OrderEntity {
@@ -53,6 +55,8 @@ class OrderService(
 
         // Save the order
         val savedOrder = orderRepository.save(newOrder)
+
+        cartItemService.populateCartItemPrices(cart)
 
         // Update the cart status
         cart.status = CartStatus.ORDERED

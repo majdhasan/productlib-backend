@@ -30,8 +30,9 @@ class CartController(
         ResponseEntity.ok(cartService.getCartById(cartId))
 
 
-    @PostMapping
-    fun createCart(@RequestParam userId: Long): ResponseEntity<CartEntity> {
+    // TODO change this to check first if a pending cart exists.
+    @PostMapping("/user/{userId}")
+    fun createCart(@PathVariable userId: Long): ResponseEntity<CartEntity> {
         // Retrieve the UserEntity using the userId
         val user = userService.getUserById(userId)
 
@@ -57,6 +58,10 @@ class CartController(
         }
 
         val cart = cartService.getCartById(cartItemRequest.cartId)
+
+        if (cart.status != CartStatus.PENDING) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(null) // Return 400 Bad Request if the productId is invalid
+
         val product = productService.getProductsById(cartItemRequest.productId)
         val cartItem = cartItemService.addItemToCart(cart, product, cartItemRequest.notes, cartItemRequest.quantity)
         return ResponseEntity.ok(cartItem)

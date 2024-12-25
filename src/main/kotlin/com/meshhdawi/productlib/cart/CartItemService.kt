@@ -1,8 +1,8 @@
 package com.meshhdawi.productlib.cart
 
+import com.meshhdawi.productlib.products.ProductEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import com.meshhdawi.productlib.products.ProductEntity
 import java.time.LocalDateTime
 
 @Service
@@ -56,4 +56,11 @@ class CartItemService(private val repository: CartItemRepository) {
     fun removeItemFromCart(cartItem: CartItemEntity) {
         repository.delete(cartItem)
     }
+
+    fun populateCartItemPrices(cart: CartEntity) =
+        cart.items.forEach { cartItem ->
+            cartItem.productPrice = cartItem.product.cost
+            repository.save(cartItem)
+
+        }
 }
