@@ -39,9 +39,7 @@ class CartItemService(private val repository: CartItemRepository) {
                 cart = cart,
                 product = product,
                 quantity = quantity,
-                notes = notes, // Assign notes here
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now()
+                notes = notes,
             )
             return repository.save(cartItem)
         }

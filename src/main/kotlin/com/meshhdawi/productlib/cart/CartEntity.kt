@@ -21,7 +21,7 @@ data class CartEntity(
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    var status: CartStatus = CartStatus.PENDING, // Default to PENDING
+    var status: CartStatus = CartStatus.PENDING,
 
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),

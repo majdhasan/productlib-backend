@@ -21,7 +21,6 @@ class CartController(
     private val cartItemService: CartItemService,
     private val productService: ProductService,
 ) {
-
     @GetMapping("/{cartId}")
     fun getCartById(@PathVariable cartId: Long): ResponseEntity<CartEntity?> =
         ResponseEntity.ok(cartService.getCartById(cartId))
