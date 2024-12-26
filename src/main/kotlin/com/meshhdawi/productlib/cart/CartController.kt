@@ -2,7 +2,6 @@ package com.meshhdawi.productlib.cart
 
 
 import com.meshhdawi.productlib.products.ProductService
-import com.meshhdawi.productlib.users.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -34,17 +33,8 @@ class CartController(
 
     @PostMapping("/add")
     fun addToCart(@RequestBody cartItemRequest: CartItemRequest): ResponseEntity<CartItemEntity> {
-        // Validate the product ID
-        if (cartItemRequest.productId <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(null) // Return 400 Bad Request if the productId is invalid
-        }
 
-        val cart = cartService.getCartById(cartItemRequest.cartId)
-
-        if (cart.status != CartStatus.PENDING) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(null) // Return 400 Bad Request if the productId is invalid
-
+        val cart = cartService.getOrCreateCartByUser(cartItemRequest.userId)
         val product = productService.getProductsById(cartItemRequest.productId)
         val cartItem = cartItemService.addItemToCart(cart, product, cartItemRequest.notes, cartItemRequest.quantity)
         return ResponseEntity.ok(cartItem)
