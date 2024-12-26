@@ -5,6 +5,6 @@ enum class OrderStatus {
     APPROVED,
     READY_FOR_PICKUP,
     IN_DELIVERY,
-    SUCCESSFUL,
+    DELIVERED,
     FAILED;
 }
