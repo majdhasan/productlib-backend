@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface CartRepository : JpaRepository<CartEntity, Long> {
 
-    fun findByUserIdAndStatusIs(userId: Long, status: CartStatus): CartEntity?
+    fun findByUserIdAndStatusIs(userId: Long, status: CartStatus): List<CartEntity>
 
 }

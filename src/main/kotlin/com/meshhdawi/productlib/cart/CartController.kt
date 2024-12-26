@@ -21,33 +21,16 @@ class CartController(
     private val cartService: CartService,
     private val cartItemService: CartItemService,
     private val productService: ProductService,
-    private val userService: UserService,
-    private val cartRepository: CartRepository
 ) {
 
     @GetMapping("/{cartId}")
     fun getCartById(@PathVariable cartId: Long): ResponseEntity<CartEntity?> =
         ResponseEntity.ok(cartService.getCartById(cartId))
 
-
-    // TODO change this to check first if a pending cart exists.
     @PostMapping("/user/{userId}")
-    fun createCart(@PathVariable userId: Long): ResponseEntity<CartEntity> {
-        // Retrieve the UserEntity using the userId
-        val user = userService.getUserById(userId)
-
-        // Create a new cart with the UserEntity
-        val newCart = CartEntity(
-            user = user,
-            items = mutableListOf() // Initialize with an empty list of items
-        )
-
-        // Save the cart to the database
-        val savedCart = cartRepository.save(newCart)
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedCart) // Return 201 Created with the new cart
-    }
-
+    fun getOrCreateCart(@PathVariable userId: Long): ResponseEntity<CartEntity> =
+        ResponseEntity.status(HttpStatus.CREATED)
+            .body(cartService.getOrCreateCartByUser(userId))
 
     @PostMapping("/add")
     fun addToCart(@RequestBody cartItemRequest: CartItemRequest): ResponseEntity<CartItemEntity> {
