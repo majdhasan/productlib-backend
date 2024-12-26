@@ -1,5 +1,6 @@
 package com.meshhdawi.productlib.orders
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.meshhdawi.productlib.cart.CartEntity
 import com.meshhdawi.productlib.users.UserEntity
 import jakarta.persistence.Column
@@ -29,6 +30,7 @@ data class OrderEntity(
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
+    @JsonIgnore
     val customerId: UserEntity,
 
     @ManyToOne
