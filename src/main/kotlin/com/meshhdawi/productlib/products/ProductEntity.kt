@@ -13,6 +13,9 @@ data class ProductEntity(
     @Column(nullable = false)
     val name: String,
 
+    @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    val translations: List<ProductTranslationEntity> = emptyList(),
+
     @Column
     val image: String,
 
