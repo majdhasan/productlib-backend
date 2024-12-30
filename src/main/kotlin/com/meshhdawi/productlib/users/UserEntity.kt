@@ -32,8 +32,11 @@ data class UserEntity(
     @Column(name = "is_registered", nullable = false)
     var isRegistered: Boolean = false,
 
-    @Column(name = "is_verified", nullable = false)
-    var isVerified: Boolean = false,
+    @Column(name = "email_verified", nullable = false)
+    var emailVerified: Boolean = false,
+
+    @Column(name = "phone_verified", nullable = false)
+    var phoneVerified: Boolean = false,
 
     @Column(name = "preferred_language", nullable = false)
     var preferredLanguage: String = "en",
