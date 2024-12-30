@@ -1,4 +1,15 @@
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_FROM}
+    password: ${GMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   datasource:
     url: jdbc:postgresql://localhost:5433/postgres
     driver-class-name: org.postgresql.Driver
@@ -14,3 +25,11 @@ spring:
 
 cors:
   originPatterns: http://localhost:8100
+
+logging:
+  level:
+    org.springframework.mail: DEBUG
+
+meshhdawi:
+    email-config:
+        email: ${EMAIL_FROM}
