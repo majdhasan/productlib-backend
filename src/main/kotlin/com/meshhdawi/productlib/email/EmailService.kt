@@ -16,7 +16,7 @@ class EmailService(private val mailSender: JavaMailSender, private val appProper
             helper.setTo(to)
             helper.setSubject(subject)
             helper.setText(text, isHtml)
-            helper.setFrom(appProperties.emailConfig.email)
+            helper.setFrom(appProperties.emailConfig.email, "Meshhdawi")
 
             mailSender.send(message)
             println("Email sent successfully to $to")
