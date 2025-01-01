@@ -1,5 +1,6 @@
 package com.meshhdawi.productlib.users
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import com.meshhdawi.productlib.customexceptions.TokenExpiredException
 import com.meshhdawi.productlib.customexceptions.TokenNotFoundException
 import com.meshhdawi.productlib.customexceptions.UserNotFoundException
@@ -15,10 +16,20 @@ class UserService(
     private val repository: UserRepository,
     private val verificationTokenRepository: VerificationTokenRepository,
     private val verificationService: VerificationService,
+    private val passwordEncoder: BCryptPasswordEncoder
+
 ) {
 
-    fun createUser(userEntity: UserEntity): UserEntity {
-        validateUserUniqueness(userEntity)
+    fun createUser(request: CreateUserRequest): UserEntity {
+        validateUserUniqueness(request.email)
+        val hashedPassword = passwordEncoder.encode(request.password)
+        val userEntity = UserEntity(
+            email = request.email,
+            firstName = request.firstName,
+            lastName = request.lastName,
+            password = hashedPassword,
+            phoneNumber = request.phoneNumber
+        )
         val savedUser = repository.save(userEntity)
         verificationService.createVerificationToken(savedUser)
         return savedUser
@@ -47,8 +58,7 @@ class UserService(
         val user: UserEntity = repository.findByEmail(email)
             ?: throw IllegalArgumentException("User with email $email not found")
 
-        // Assuming passwords are stored securely (e.g., hashed), use a password verification function
-        if (user.password != password) {
+        if (!passwordEncoder.matches(password, user.password)) {
             throw IllegalArgumentException("Invalid email or password")
         }
         return user
@@ -59,8 +69,8 @@ class UserService(
         return repository.findById(userId).orElseThrow { IllegalArgumentException("User with ID $userId not found") }
     }
 
-    private fun validateUserUniqueness(userEntity: UserEntity) {
-        if (repository.findByEmail(userEntity.email) != null) {
+    private fun validateUserUniqueness(email: String) {
+        if (repository.findByEmail(email) != null) {
             throw IllegalArgumentException("Email already exists.")
         }
     }

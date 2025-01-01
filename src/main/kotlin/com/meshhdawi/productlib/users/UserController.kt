@@ -36,8 +36,8 @@ class UserController(
     }
 
     @PostMapping
-    fun createUser(@RequestBody userEntity: UserEntity): ResponseEntity<UserEntity> {
-        return ResponseEntity.ok(service.createUser(userEntity))
+    fun createUser(@RequestBody request: CreateUserRequest): ResponseEntity<UserEntity> {
+        return ResponseEntity.ok(service.createUser(request))
     }
 
     @GetMapping("/verify/{userId}")
