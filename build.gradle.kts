@@ -20,6 +20,8 @@ repositories {
 }
 
 dependencies {
+	implementation ("com.paypal.sdk:rest-api-sdk:1.14.0")
+	implementation ("com.twilio.sdk:twilio:8.25.0")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-mail")

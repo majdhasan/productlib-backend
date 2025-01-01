@@ -1,4 +1,4 @@
-package com.meshhdawi.productlib.email
+package com.meshhdawi.productlib.messaging.email
 
 import com.meshhdawi.productlib.AppProperties
 import org.springframework.mail.javamail.JavaMailSender

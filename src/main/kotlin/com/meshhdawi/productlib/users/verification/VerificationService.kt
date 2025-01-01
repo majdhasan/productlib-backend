@@ -1,6 +1,6 @@
 package com.meshhdawi.productlib.users.verification
 
-import com.meshhdawi.productlib.email.EmailService
+import com.meshhdawi.productlib.messaging.email.EmailService
 import com.meshhdawi.productlib.users.UserEntity
 import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import org.springframework.stereotype.Service
@@ -14,7 +14,7 @@ class VerificationService(
 
 ) {
 
-    fun createRandomToken(digits: Int): String {
+    private fun createRandomToken(digits: Int): String {
         val sb = StringBuilder(digits)
         for (i in 0 until digits) {
             sb.append(Random.nextInt(10))

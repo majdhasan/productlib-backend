@@ -1,5 +1,7 @@
 package com.meshhdawi.productlib.users
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -21,12 +23,14 @@ data class UserEntity(
     var phoneNumber: String,
 
     @Column(name = "date_of_birth")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     var dateOfBirth: LocalDate? = null,
 
     @Column(nullable = false, unique = true)
     val email: String,
 
     @Column
+    @JsonIgnore
     var password: String? = null,
 
     @Column(name = "is_registered", nullable = false)
