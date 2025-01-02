@@ -4,6 +4,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import com.meshhdawi.productlib.customexceptions.TokenExpiredException
 import com.meshhdawi.productlib.customexceptions.TokenNotFoundException
 import com.meshhdawi.productlib.customexceptions.UserNotFoundException
+import com.meshhdawi.productlib.security.JwtUtil
 import com.meshhdawi.productlib.users.verification.VerificationService
 import com.meshhdawi.productlib.users.verification.VerificationTokenRepository
 import org.springframework.stereotype.Service
@@ -16,10 +17,13 @@ class UserService(
     private val repository: UserRepository,
     private val verificationTokenRepository: VerificationTokenRepository,
     private val verificationService: VerificationService,
-    private val passwordEncoder: BCryptPasswordEncoder
+    private val passwordEncoder: BCryptPasswordEncoder,
+    private val jwtUtil: JwtUtil
+
 
 ) {
 
+    // TODO Refactor this to return just OK and ask user to login in FE
     fun createUser(request: CreateUserRequest): UserEntity {
         validateUserUniqueness(request.email)
         val hashedPassword = passwordEncoder.encode(request.password)
@@ -54,14 +58,15 @@ class UserService(
         return repository.save(existingUser)
     }
 
-    fun authenticateUser(email: String, password: String): UserEntity {
+    fun authenticateUser(email: String, password: String): Map<String, Any> {
         val user: UserEntity = repository.findByEmail(email)
             ?: throw IllegalArgumentException("User with email $email not found")
 
         if (!passwordEncoder.matches(password, user.password)) {
             throw IllegalArgumentException("Invalid email or password")
         }
-        return user
+
+        return mapOf("token" to jwtUtil.generateToken(user.id), "user" to user)
     }
 
     @Transactional(readOnly = true)

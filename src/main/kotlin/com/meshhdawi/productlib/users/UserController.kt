@@ -21,9 +21,13 @@ class UserController(
 
     @PostMapping("/login")
     fun loginUser(@RequestBody loginRequest: LoginRequest): ResponseEntity<Map<String, Any>> {
-        val user = service.authenticateUser(loginRequest.email, loginRequest.password)
+        val authenticatedUser = service.authenticateUser(loginRequest.email, loginRequest.password)
+
+        val user = authenticatedUser["user"]!! as UserEntity
+        val token = authenticatedUser["token"]!! as String
         val cart = cartService.getOrCreateCartByUser(user.id)
-        return ResponseEntity.ok(mapOf("user" to user, "cart" to cart))
+
+        return ResponseEntity.ok(mapOf("user" to user, "cart" to cart, "token" to token))
     }
 
     @PutMapping("/profile/{userId}")
@@ -55,7 +59,8 @@ class UserController(
     """.trimIndent()
             return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(htmlResponse)
         } catch (e: Exception) {
-            return ResponseEntity.badRequest().body("""
+            return ResponseEntity.badRequest().body(
+                """
                         <html>
                             <head><title>Email Verification failed</title></head>
                             <body>
@@ -64,7 +69,8 @@ class UserController(
                                 <p>${e.message}</p>
                             </body>
                         </html>
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
 
     }
