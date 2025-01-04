@@ -1,12 +1,12 @@
 package com.meshhdawi.productlib.users
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import com.meshhdawi.productlib.customexceptions.TokenExpiredException
 import com.meshhdawi.productlib.customexceptions.TokenNotFoundException
 import com.meshhdawi.productlib.customexceptions.UserNotFoundException
-import com.meshhdawi.productlib.security.JwtUtil
+import com.meshhdawi.productlib.web.security.JwtUtil
 import com.meshhdawi.productlib.users.verification.VerificationService
 import com.meshhdawi.productlib.users.verification.VerificationTokenRepository
+import org.mindrot.jbcrypt.BCrypt
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -17,7 +17,6 @@ class UserService(
     private val repository: UserRepository,
     private val verificationTokenRepository: VerificationTokenRepository,
     private val verificationService: VerificationService,
-    private val passwordEncoder: BCryptPasswordEncoder,
     private val jwtUtil: JwtUtil
 
 
@@ -26,7 +25,7 @@ class UserService(
     // TODO Refactor this to return just OK and ask user to login in FE
     fun createUser(request: CreateUserRequest): UserEntity {
         validateUserUniqueness(request.email)
-        val hashedPassword = passwordEncoder.encode(request.password)
+        val hashedPassword = BCrypt.hashpw(request.password, BCrypt.gensalt())
         val userEntity = UserEntity(
             email = request.email,
             firstName = request.firstName,
@@ -62,7 +61,7 @@ class UserService(
         val user: UserEntity = repository.findByEmail(email)
             ?: throw IllegalArgumentException("User with email $email not found")
 
-        if (!passwordEncoder.matches(password, user.password)) {
+        if (!BCrypt.checkpw(password, user.password)) {
             throw IllegalArgumentException("Invalid email or password")
         }
 

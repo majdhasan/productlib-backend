@@ -1,4 +1,4 @@
-package com.meshhdawi.productlib.security
+package com.meshhdawi.productlib.web.security
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -23,7 +23,7 @@ class JwtUtil {
     }
 
     fun extractUserId(token: String): Long {
-        return extractAllClaims(token).get("userId", Long::class.java)
+        return extractAllClaims(token).get("userId", Integer::class.java)?.toLong() ?: 0L
     }
 
     fun validateToken(token: String): Boolean {
@@ -36,8 +36,9 @@ class JwtUtil {
     }
 
     private fun extractAllClaims(token: String): Claims {
-        return Jwts.parser()
+        return Jwts.parserBuilder()
             .setSigningKey(secretKey)
+            .build()
             .parseClaimsJws(token)
             .body
     }

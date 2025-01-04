@@ -1,4 +1,4 @@
-package com.meshhdawi.productlib
+package com.meshhdawi.productlib.web
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
