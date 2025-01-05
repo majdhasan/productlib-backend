@@ -2,9 +2,7 @@ package com.meshhdawi.productlib.users.verification
 
 import com.meshhdawi.productlib.messaging.email.EmailService
 import com.meshhdawi.productlib.users.UserEntity
-import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import org.springframework.stereotype.Service
-import java.awt.SystemColor.text
 import kotlin.random.Random
 
 @Service

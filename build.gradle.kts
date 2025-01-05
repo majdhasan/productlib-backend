@@ -22,13 +22,17 @@ repositories {
 dependencies {
 	implementation ("com.paypal.sdk:rest-api-sdk:1.14.0")
 	implementation ("com.twilio.sdk:twilio:8.25.0")
-	implementation ("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-mail")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.flywaydb:flyway-core:10.20.1") // Use the latest version
+	implementation("org.mindrot:jbcrypt:0.4")
+	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+	implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
+	implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
 	runtimeOnly("org.flywaydb:flyway-database-postgresql:10.21.0")
 	implementation("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")

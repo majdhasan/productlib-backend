@@ -1,9 +1,9 @@
 package com.meshhdawi.productlib.products
 
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
 
-@org.springframework.stereotype.Service
+@Service
 @Transactional
 class ProductService(private val repository: ProductRepository) {
 
