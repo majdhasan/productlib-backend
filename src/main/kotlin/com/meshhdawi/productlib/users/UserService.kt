@@ -18,11 +18,8 @@ class UserService(
     private val verificationTokenRepository: VerificationTokenRepository,
     private val verificationService: VerificationService,
     private val jwtUtil: JwtUtil
-
-
 ) {
 
-    // TODO Refactor this to return just OK and ask user to login in FE
     fun createUser(request: CreateUserRequest): UserEntity {
         validateUserUniqueness(request.email)
         val hashedPassword = BCrypt.hashpw(request.password, BCrypt.gensalt())
