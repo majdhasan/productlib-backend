@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -28,15 +27,6 @@ class UserController(
         val cart = cartService.getOrCreateCartByUser(user.id)
 
         return ResponseEntity.ok(mapOf("user" to user, "cart" to cart, "token" to token))
-    }
-
-    @PutMapping("/profile/{userId}")
-    fun updateProfile(
-        @PathVariable userId: Long,
-        @RequestBody profileUpdateRequest: ProfileUpdateRequest
-    ): ResponseEntity<UserEntity> {
-        val user = service.updateUserProfile(userId, profileUpdateRequest)
-        return ResponseEntity.ok(user)
     }
 
     @PostMapping

@@ -33,17 +33,11 @@ data class UserEntity(
     @JsonIgnore
     var password: String? = null,
 
-    @Column(name = "is_registered", nullable = false)
-    var isRegistered: Boolean = false,
-
     @Column(name = "email_verified", nullable = false)
     var emailVerified: Boolean = false,
 
     @Column(name = "phone_verified", nullable = false)
     var phoneVerified: Boolean = false,
-
-    @Column(name = "preferred_language", nullable = false)
-    var preferredLanguage: String = "en",
 
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),

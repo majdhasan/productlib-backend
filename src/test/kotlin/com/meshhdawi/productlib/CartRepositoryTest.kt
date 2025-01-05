@@ -24,8 +24,6 @@ class CartRepositoryTest(
                 lastName = "Doe",
                 phoneNumber = "1234567890",
                 email = "john.doe@example.com",
-                isRegistered = true,
-                isVerified = false
             )
         )
 

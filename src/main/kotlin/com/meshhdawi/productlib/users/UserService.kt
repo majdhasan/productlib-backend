@@ -38,25 +38,6 @@ class UserService(
         return savedUser
     }
 
-    fun updateUserProfile(id: Long, updatedUser: ProfileUpdateRequest): UserEntity {
-        val existingUser = getUserById(id)
-
-        updatedUser.firstName?.let {
-            existingUser.firstName = it
-        }
-        updatedUser.lastName?.let {
-            existingUser.lastName = it
-        }
-        updatedUser.dateOfBirth?.let {
-            existingUser.dateOfBirth = it
-        }
-        updatedUser.preferredLanguage?.let {
-            existingUser.preferredLanguage = it
-        }
-
-        return repository.save(existingUser)
-    }
-
     fun authenticateUser(email: String, password: String): Map<String, Any> {
         val user: UserEntity = repository.findByEmail(email)
             ?: throw IllegalArgumentException("User with email $email not found")
