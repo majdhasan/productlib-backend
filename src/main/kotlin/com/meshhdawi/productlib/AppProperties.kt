@@ -1,13 +1,12 @@
 package com.meshhdawi.productlib
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties("meshhdawi")
 data class AppProperties(
     val emailConfig: EmailConfig,
-    val paypalConfig: PaypalConfig,
-    val twilioConfig: TwilioConfig,
+//    val paypalConfig: PaypalConfig,
+//    val twilioConfig: TwilioConfig,
     ) {
 
     data class EmailConfig(
