@@ -27,7 +27,6 @@ class JwtUtil {
     fun extractUserId(token: String): Long = extractAllClaims(token).get("userId", Integer::class.java)?.toLong()
         ?: throw IllegalArgumentException("Invalid token")
 
-
     fun extractUserRole(token: String): UserRole = UserRole.valueOf(
         extractAllClaims(token).get("role", String::class.java) ?: throw IllegalArgumentException("Invalid token")
     )
