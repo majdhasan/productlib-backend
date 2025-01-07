@@ -39,6 +39,10 @@ data class UserEntity(
     @Column(name = "phone_verified", nullable = false)
     var phoneVerified: Boolean = false,
 
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    var role: UserRole = UserRole.CUSTOMER,
+
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 

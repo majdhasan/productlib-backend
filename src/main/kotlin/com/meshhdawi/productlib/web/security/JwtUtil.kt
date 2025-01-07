@@ -1,5 +1,6 @@
 package com.meshhdawi.productlib.web.security
 
+import com.meshhdawi.productlib.users.UserRole
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
@@ -13,8 +14,8 @@ class JwtUtil {
     private final var secret: String = "your-super-secure-256-bit-secret-key-12345"
     var secretKey: SecretKey = Keys.hmacShaKeyFor(secret.toByteArray(Charsets.UTF_8))
 
-    fun generateToken(userId: Long): String {
-        val claims: Map<String, Any> = mapOf("userId" to userId)
+    fun generateToken(userId: Long, role: UserRole): String {
+        val claims: Map<String, Any> = mapOf("userId" to userId, "role" to role)
         return Jwts.builder()
             .setClaims(claims)
             .setIssuedAt(Date(System.currentTimeMillis()))
@@ -23,9 +24,13 @@ class JwtUtil {
             .compact()
     }
 
-    fun extractUserId(token: String): Long {
-        return extractAllClaims(token).get("userId", Integer::class.java)?.toLong() ?: throw IllegalArgumentException("Invalid token")
-    }
+    fun extractUserId(token: String): Long = extractAllClaims(token).get("userId", Integer::class.java)?.toLong()
+        ?: throw IllegalArgumentException("Invalid token")
+
+
+    fun extractUserRole(token: String): UserRole = UserRole.valueOf(
+        extractAllClaims(token).get("role", String::class.java) ?: throw IllegalArgumentException("Invalid token")
+    )
 
     fun validateToken(token: String): Boolean {
         return try {
