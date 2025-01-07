@@ -17,6 +17,10 @@ class OrderService(
     private val cartItemService: CartItemService
 ) {
 
+    fun getAllOrders(): List<OrderEntity> {
+        return orderRepository.findAll()
+    }
+
     fun getOrderById(id: Long): OrderEntity {
         return orderRepository.findById(id)
             .orElseThrow { IllegalArgumentException("Order not found with ID: $id") }

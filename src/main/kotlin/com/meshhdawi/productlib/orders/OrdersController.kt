@@ -1,6 +1,8 @@
 package com.meshhdawi.productlib.orders
 
 import com.meshhdawi.productlib.context.getUserId
+import com.meshhdawi.productlib.context.getUserRole
+import com.meshhdawi.productlib.users.UserRole
 import com.meshhdawi.productlib.web.security.AuthService
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
@@ -17,12 +19,19 @@ class OrdersController(
     private val orderService: OrderService,
     private val authService: AuthService
 ) {
+    @GetMapping
+    fun getAllOrders(request: HttpServletRequest): ResponseEntity<List<OrderEntity>> {
+        return authService.validateJWTAuth(request) {
+            if (getUserRole() != UserRole.ADMIN) throw IllegalArgumentException("You are not authorized to view all orders.")
+            ResponseEntity.ok(orderService.getAllOrders())
+        }
+    }
 
     @GetMapping("/{id}")
     fun getOrderById(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<OrderEntity> {
         return authService.validateJWTAuth(request) {
             val order = orderService.getOrderById(id)
-            if (getUserId() != order.customerId.id) throw IllegalArgumentException("You are not authorized to view orders for this user.")
+            if (getUserRole()!= UserRole.ADMIN && getUserId() != order.customerId.id) throw IllegalArgumentException("You are not authorized to view orders for this user.")
             ResponseEntity.ok(order)
         }
     }

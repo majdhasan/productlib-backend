@@ -43,7 +43,7 @@ class UserService(
             throw IllegalArgumentException("Invalid email or password")
         }
 
-        return mapOf("token" to jwtUtil.generateToken(user.id), "user" to user)
+        return mapOf("token" to jwtUtil.generateToken(user.id, user.role), "user" to user)
     }
 
     @Transactional(readOnly = true)

@@ -21,7 +21,8 @@ class AuthService(
             throw IllegalArgumentException("Invalid JWT token")
         }
         val userId = jwtUtil.extractUserId(token)
-        UserContextHolder.setUserContext(UserContext(userId))
+        val role = jwtUtil.extractUserRole(token)
+        UserContextHolder.setUserContext(UserContext(userId, role))
         return try {
             lambda()
         } finally {
