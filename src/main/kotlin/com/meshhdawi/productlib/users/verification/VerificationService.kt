@@ -45,10 +45,10 @@ class VerificationService(
                 
                 <p><strong>$token</strong></p>
                 
-                <p><a href="http://localhost:8080/api/users/verify/$id?token=$token">Click here to verify your account</a></p>
+                <p><a href="https://api.meshhdawi.com/users/verify/$id?token=$token">Click here to verify your account</a></p>
                 <p> press on the link or copy and paste it in your browser.</p>
                 
-                http://localhost:8080/api/users/verify/$id?token=$token
+                https://api.meshhdawi.com/users/verify/$id?token=$token
                 
                 <p>This token will expire in 24 hours.</p> 
                 
