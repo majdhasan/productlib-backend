@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class ProductService(private val repository: ProductRepository) {
 
+    fun createProduct(product: ProductEntity): ProductEntity = repository.save(product)
+
     fun getAllProducts(): List<ProductEntity> = repository.findAll()
 
     fun getProductsById(serviceId: Long): ProductEntity =
