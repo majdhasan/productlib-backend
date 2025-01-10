@@ -2,7 +2,9 @@ package com.meshhdawi.productlib.orders
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.meshhdawi.productlib.cart.CartEntity
+import com.meshhdawi.productlib.orders.orderitems.OrderItemEntity
 import com.meshhdawi.productlib.users.UserEntity
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -12,6 +14,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.time.LocalDateTime
 
@@ -32,10 +35,6 @@ data class OrderEntity(
     @JoinColumn(name = "customer_id", nullable = false)
     @JsonIgnore
     val customerId: UserEntity,
-
-    @ManyToOne
-    @JoinColumn(name = "cart_id", nullable = false)
-    val cart: CartEntity,
 
     @Column(nullable = false)
     val phone: String,
@@ -60,10 +59,12 @@ data class OrderEntity(
     @Enumerated(EnumType.STRING)
     val type: OrderType = OrderType.PICKUP,
 
+    @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val items: MutableList<OrderItemEntity> = mutableListOf(),
+
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "updated_at")
-    val updatedAt: LocalDateTime = LocalDateTime.now(),
-
-    )
+    val updatedAt: LocalDateTime = LocalDateTime.now()
+)

@@ -1,5 +1,6 @@
-package com.meshhdawi.productlib.cart
+package com.meshhdawi.productlib.cart.cartitems
 
+import com.meshhdawi.productlib.cart.CartEntity
 import com.meshhdawi.productlib.products.ProductEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -11,17 +12,6 @@ class CartItemService(private val repository: CartItemRepository) {
 
     fun getCartItemById(id: Long): CartItemEntity {
         return repository.findById(id).orElseThrow { IllegalArgumentException("Cart item with ID $id not found") }
-    }
-
-    fun updateItemInCart(cart: CartEntity, product: ProductEntity, quantity: Int, notes: String?): CartItemEntity {
-        val cartItem = cart.items.find { it.product.id == product.id }
-            ?: throw IllegalArgumentException("Product not found in the cart")
-
-        cartItem.quantity = quantity
-        cartItem.notes = notes
-        cartItem.updatedAt = LocalDateTime.now()
-
-        return repository.save(cartItem)
     }
 
     fun addItemToCart(cart: CartEntity, product: ProductEntity, notes: String?, quantity: Int): CartItemEntity {
@@ -54,11 +44,4 @@ class CartItemService(private val repository: CartItemRepository) {
     fun removeItemFromCart(cartItem: CartItemEntity) {
         repository.delete(cartItem)
     }
-
-    fun populateCartItemPrices(cart: CartEntity) =
-        cart.items.forEach { cartItem ->
-            cartItem.productPrice = cartItem.product.cost
-            repository.save(cartItem)
-
-        }
 }

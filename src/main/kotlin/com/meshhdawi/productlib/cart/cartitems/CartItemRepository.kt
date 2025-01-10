@@ -1,5 +1,6 @@
-package com.meshhdawi.productlib.cart
+package com.meshhdawi.productlib.cart.cartitems
 
+import com.meshhdawi.productlib.cart.CartEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import com.meshhdawi.productlib.products.ProductEntity
 

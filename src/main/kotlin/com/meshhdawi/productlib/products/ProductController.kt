@@ -26,9 +26,8 @@ class ProductController(
     fun createProduct(
         @RequestParam("name") name: String,
         @RequestParam("description") description: String?,
-        @RequestParam("cost") cost: Double,
+        @RequestParam("price") price: Double,
         @RequestParam("image") image: MultipartFile,
-        @RequestParam("category") category: ProductCategory,
         @RequestParam("translations") translationsJson: String,
         request: HttpServletRequest
     ): ResponseEntity<ProductEntity> = authService.validateJWTAuth(request) {
@@ -36,7 +35,7 @@ class ProductController(
 
         val translations =
             ObjectMapper().readValue(translationsJson, Array<ProductTranslationRequest>::class.java).toList()
-        val productRequest = ProductCreateRequest(name, description, cost, image, category, translations)
+        val productRequest = ProductCreateRequest(name, description, price, image, translations)
 
         ResponseEntity.ok(service.createProduct(productRequest))
     }
