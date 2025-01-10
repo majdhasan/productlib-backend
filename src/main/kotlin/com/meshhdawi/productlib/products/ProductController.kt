@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -20,14 +21,21 @@ class ProductController(
 ) {
 
     @PostMapping
-    fun createProduct(product: ProductEntity, request: HttpServletRequest): ResponseEntity<ProductEntity> =
+    fun createProduct(
+        @RequestBody productRequest: ProductCreateRequest,
+        request: HttpServletRequest
+    ): ResponseEntity<ProductEntity> =
         authService.validateJWTAuth(request) {
             if (getUserRole() != UserRole.ADMIN) throw IllegalArgumentException("You are not authorized to create a product.")
-            ResponseEntity.ok(service.createProduct(product))
+            ResponseEntity.ok(service.createProduct(productRequest))
         }
 
     @PostMapping("/{id}")
-    fun updateProduct(@PathVariable id: Long, product: ProductEntity, request: HttpServletRequest): ResponseEntity<ProductEntity> =
+    fun updateProduct(
+        @PathVariable id: Long,
+        product: ProductEntity,
+        request: HttpServletRequest
+    ): ResponseEntity<ProductEntity> =
         authService.validateJWTAuth(request) {
             if (getUserRole() != UserRole.ADMIN) throw IllegalArgumentException("You are not authorized to update a product.")
             ResponseEntity.ok(service.updateProduct(id, product))

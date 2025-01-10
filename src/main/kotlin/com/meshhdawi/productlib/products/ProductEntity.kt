@@ -27,7 +27,7 @@ data class ProductEntity(
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    val category: ProductCategory,
+    val category: ProductCategory = ProductCategory.OTHER,
 
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),

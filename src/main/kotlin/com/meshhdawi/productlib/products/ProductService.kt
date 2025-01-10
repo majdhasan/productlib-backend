@@ -5,13 +5,40 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
-class ProductService(private val repository: ProductRepository) {
+class ProductService(
+    private val productRepository: ProductRepository,
+    private val productTranslationRepository: ProductTranslationRepository
+) {
 
-    fun createProduct(product: ProductEntity): ProductEntity = repository.save(product)
+    fun createProduct(productRequest: ProductCreateRequest): ProductEntity {
+        val product = ProductEntity(
+            name = productRequest.name,
+            description = productRequest.description,
+            cost = productRequest.cost,
+            image = productRequest.image,
+            category = productRequest.category
+        )
+
+        val savedProduct = productRepository.save(product)
+
+        val translations = productRequest.translations.map {
+            ProductTranslationEntity(
+                product = savedProduct,
+                language = it.language,
+                name = it.name,
+                description = it.description
+            )
+        }
+
+        productTranslationRepository.saveAll(translations)
+
+        return productRepository.findById(savedProduct.id)
+            .orElseThrow { IllegalArgumentException("There was an issue saving the product") }
+    }
 
     fun updateProduct(id: Long, product: ProductEntity): ProductEntity {
         val existingProduct = getProductsById(id)
-        return repository.save(
+        return productRepository.save(
             existingProduct.copy(
                 name = product.name,
                 translations = product.translations,
@@ -24,10 +51,11 @@ class ProductService(private val repository: ProductRepository) {
         )
     }
 
-    fun getAllProducts(): List<ProductEntity> = repository.findAll()
+    fun getAllProducts(): List<ProductEntity> = productRepository.findAll()
 
     fun getProductsById(serviceId: Long): ProductEntity =
-        repository.findById(serviceId).orElseThrow { IllegalArgumentException("Product with ID $serviceId not found") }
+        productRepository.findById(serviceId)
+            .orElseThrow { IllegalArgumentException("Product with ID $serviceId not found") }
 
-    fun deleteProduct(id: Long) = repository.deleteById(id)
+    fun deleteProduct(id: Long) = productRepository.deleteById(id)
 }
