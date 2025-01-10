@@ -40,3 +40,4 @@ out/
 .kotlin
 
 /docker/productlib/postgres-productlib-data/
+/src/main/resources/static/uploads/

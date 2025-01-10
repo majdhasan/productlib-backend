@@ -1,5 +1,6 @@
 package com.meshhdawi.productlib.products
 
+import com.meshhdawi.productlib.fileupload.FileStorageService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -7,15 +8,21 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class ProductService(
     private val productRepository: ProductRepository,
-    private val productTranslationRepository: ProductTranslationRepository
+    private val productTranslationRepository: ProductTranslationRepository,
+    private val storageService: FileStorageService
 ) {
 
     fun createProduct(productRequest: ProductCreateRequest): ProductEntity {
+        if (productRequest.image.isEmpty) {
+            throw IllegalArgumentException("Image is required")
+        }
+        val storeFileName = storageService.storeFile(productRequest.image)
+
         val product = ProductEntity(
             name = productRequest.name,
             description = productRequest.description,
             cost = productRequest.cost,
-            image = productRequest.image,
+            image = storeFileName,
             category = productRequest.category
         )
 
