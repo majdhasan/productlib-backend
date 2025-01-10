@@ -45,6 +45,10 @@ class OrderService(
             throw IllegalStateException("Cart is not in PENDING status.")
         }
 
+        if (cart.items.isEmpty()) {
+            throw IllegalStateException("Cart is empty.")
+        }
+
         // Create the order
         val newOrder = OrderEntity(
             cart = cart,
