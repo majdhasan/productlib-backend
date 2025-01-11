@@ -21,9 +21,8 @@ class CartService(
 
     fun getOrCreateCartByUser(userId: Long): CartEntity {
         val user = userService.getUserById(userId)
-        val cartList = repository.findByUserId(userId)
+        val foundCart = repository.findByUserId(userId)
 
-        if (cartList.isNotEmpty()) return cartList.last()
-        return repository.save(CartEntity(user = user, items = mutableListOf()))
+        return foundCart ?: repository.save(CartEntity(user = user, items = mutableListOf()))
     }
 }
