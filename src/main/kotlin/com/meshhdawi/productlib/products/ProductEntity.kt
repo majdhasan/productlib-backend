@@ -25,6 +25,9 @@ data class ProductEntity(
     @Column(nullable = false)
     val price: Double,
 
+    @Column(nullable = false)
+    val unit: ProductUnit = ProductUnit.PIECE,
+
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
