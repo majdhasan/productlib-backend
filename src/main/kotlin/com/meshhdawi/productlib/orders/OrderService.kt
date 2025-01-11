@@ -62,23 +62,28 @@ class OrderService(
 
         // Map cart items to order items and save them
         val orderItems = cart.items.map { cartItem ->
+            val productName = cartItem.product.translations.firstOrNull { it.language == orderRequest.language }?.name
+                ?: cartItem.product.name
+            val productDescription = cartItem.product.translations.firstOrNull { it.language == orderRequest.language }?.description
+                ?: cartItem.product.description
+
             orderItemRepository.save(
                 OrderItemEntity(
                     order = savedOrder,
                     productId = cartItem.product.id,
-                    productName = cartItem.product.name,
-                    productDescription = cartItem.product.description,
+                    productName = productName,
+                    productDescription = productDescription,
                     productPrice = cartItem.product.price,
                     quantity = cartItem.quantity,
-                    notes = cartItem.notes
+                    notes = cartItem.notes,
+                    productImage = cartItem.product.image
                 )
             )
         }
 
 
         savedOrder.items.addAll(orderItems)
-        cartService.emptyCart(cart)
-
+        cartService.deleteCart(cart.id)
         return savedOrder
     }
 }
