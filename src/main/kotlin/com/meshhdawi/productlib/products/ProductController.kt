@@ -27,6 +27,7 @@ class ProductController(
         @RequestParam("name") name: String,
         @RequestParam("description") description: String?,
         @RequestParam("price") price: Double,
+        @RequestParam("unit") unit: String,
         @RequestParam("image") image: MultipartFile,
         @RequestParam("translations") translationsJson: String,
         request: HttpServletRequest
@@ -35,7 +36,14 @@ class ProductController(
 
         val translations =
             ObjectMapper().readValue(translationsJson, Array<ProductTranslationRequest>::class.java).toList()
-        val productRequest = ProductCreateRequest(name, description, price, image, translations)
+        val productRequest = ProductCreateRequest(
+            name = name,
+            description = description,
+            price = price,
+            image = image,
+            translations = translations,
+            unit = ProductUnit.valueOf(unit)
+        )
 
         ResponseEntity.ok(service.createProduct(productRequest))
     }

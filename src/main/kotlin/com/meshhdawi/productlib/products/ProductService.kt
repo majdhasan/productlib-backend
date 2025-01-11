@@ -23,6 +23,7 @@ class ProductService(
             description = productRequest.description,
             price = productRequest.price,
             image = storeFileName,
+            unit = productRequest.unit
         )
 
         val savedProduct = productRepository.save(product)
