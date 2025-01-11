@@ -23,11 +23,7 @@ data class ProductEntity(
     val description: String? = null,
 
     @Column(nullable = false)
-    val cost: Double,
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    val category: ProductCategory = ProductCategory.OTHER,
+    val price: Double,
 
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),

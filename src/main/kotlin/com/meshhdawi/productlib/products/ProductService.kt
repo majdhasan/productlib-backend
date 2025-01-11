@@ -21,9 +21,8 @@ class ProductService(
         val product = ProductEntity(
             name = productRequest.name,
             description = productRequest.description,
-            cost = productRequest.cost,
+            price = productRequest.price,
             image = storeFileName,
-            category = productRequest.category
         )
 
         val savedProduct = productRepository.save(product)
@@ -51,8 +50,7 @@ class ProductService(
                 translations = product.translations,
                 image = product.image,
                 description = product.description,
-                cost = product.cost,
-                category = product.category,
+                price = product.price,
                 updatedAt = product.updatedAt
             )
         )

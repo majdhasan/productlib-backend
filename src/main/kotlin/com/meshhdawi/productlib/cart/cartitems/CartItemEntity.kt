@@ -1,6 +1,7 @@
-package com.meshhdawi.productlib.cart
+package com.meshhdawi.productlib.cart.cartitems
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.meshhdawi.productlib.cart.CartEntity
 import jakarta.persistence.*
 import com.meshhdawi.productlib.products.ProductEntity
 import java.time.LocalDateTime
@@ -23,9 +24,6 @@ data class CartItemEntity(
 
     @Column(nullable = false)
     var quantity: Int = 1,
-
-    @Column(nullable = true)
-    var productPrice: Double? = null, // Store the price of the product at the time of order creation
 
     @Column
     var notes: String?,

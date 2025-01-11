@@ -1,6 +1,9 @@
 package com.meshhdawi.productlib.cart
 
 
+import com.meshhdawi.productlib.cart.cartitems.CartItemEntity
+import com.meshhdawi.productlib.cart.cartitems.CartItemRequest
+import com.meshhdawi.productlib.cart.cartitems.CartItemService
 import com.meshhdawi.productlib.context.getUserId
 import com.meshhdawi.productlib.products.ProductService
 import com.meshhdawi.productlib.web.security.AuthService

@@ -12,4 +12,5 @@ data class OrderRequest(
     val lastName: String,
     val orderNotes: String?,
     val wishedPickupTime: LocalDateTime?,
+    val language: String?
 )

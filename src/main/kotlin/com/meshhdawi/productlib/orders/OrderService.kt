@@ -1,8 +1,9 @@
 package com.meshhdawi.productlib.orders
 
-import com.meshhdawi.productlib.cart.CartItemService
 import com.meshhdawi.productlib.cart.CartRepository
-import com.meshhdawi.productlib.cart.CartStatus
+import com.meshhdawi.productlib.cart.CartService
+import com.meshhdawi.productlib.orders.orderitems.OrderItemEntity
+import com.meshhdawi.productlib.orders.orderitems.OrderItemRepository
 import com.meshhdawi.productlib.users.UserRepository
 import com.meshhdawi.productlib.users.UserService
 import org.springframework.stereotype.Service
@@ -14,7 +15,8 @@ class OrderService(
     private val cartRepository: CartRepository,
     private val userRepository: UserRepository,
     private val userService: UserService,
-    private val cartItemService: CartItemService
+    private val cartService: CartService,
+    private val orderItemRepository: OrderItemRepository
 ) {
 
     fun getAllOrders(): List<OrderEntity> {
@@ -37,40 +39,51 @@ class OrderService(
         val cart = cartRepository.findById(orderRequest.cartId)
             .orElseThrow { IllegalArgumentException("Cart not found with ID: ${orderRequest.cartId}") }
 
-        // Fetch and validate the cart
+        // Fetch and validate the customer
         val customer = userRepository.findById(orderRequest.customerId)
             .orElseThrow { IllegalArgumentException("Customer not found with ID: ${orderRequest.customerId}") }
 
-        if (cart.status != CartStatus.PENDING) {
-            throw IllegalStateException("Cart is not in PENDING status.")
-        }
-
         if (cart.items.isEmpty()) {
-            throw IllegalStateException("Cart is empty.")
+            throw IllegalStateException("Cart cannot be empty.")
         }
 
-        // Create the order
-        val newOrder = OrderEntity(
-            cart = cart,
-            customerId = customer,
-            type = orderRequest.orderType,
-            address = orderRequest.address,
-            phone = orderRequest.phone,
-            firstName = orderRequest.firstName,
-            lastName = orderRequest.lastName,
-            notes = orderRequest.orderNotes,
-            wishedPickupTime = orderRequest.wishedPickupTime,
+        val savedOrder = orderRepository.save(
+            OrderEntity(
+                customerId = customer,
+                type = orderRequest.orderType,
+                address = orderRequest.address,
+                phone = orderRequest.phone,
+                firstName = orderRequest.firstName,
+                lastName = orderRequest.lastName,
+                notes = orderRequest.orderNotes,
+                wishedPickupTime = orderRequest.wishedPickupTime,
+            )
         )
 
-        // Save the order
-        val savedOrder = orderRepository.save(newOrder)
+        // Map cart items to order items and save them
+        val orderItems = cart.items.map { cartItem ->
+            val productName = cartItem.product.translations.firstOrNull { it.language == orderRequest.language }?.name
+                ?: cartItem.product.name
+            val productDescription = cartItem.product.translations.firstOrNull { it.language == orderRequest.language }?.description
+                ?: cartItem.product.description
 
-        cartItemService.populateCartItemPrices(cart)
+            orderItemRepository.save(
+                OrderItemEntity(
+                    order = savedOrder,
+                    productId = cartItem.product.id,
+                    productName = productName,
+                    productDescription = productDescription,
+                    productPrice = cartItem.product.price,
+                    quantity = cartItem.quantity,
+                    notes = cartItem.notes,
+                    productImage = cartItem.product.image
+                )
+            )
+        }
 
-        // Update the cart status
-        cart.status = CartStatus.ORDERED
-        cartRepository.save(cart)
 
+        savedOrder.items.addAll(orderItems)
+        cartService.deleteCart(cart.id)
         return savedOrder
     }
 }

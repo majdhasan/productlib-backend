@@ -1,4 +1,4 @@
-package com.meshhdawi.productlib.cart
+package com.meshhdawi.productlib.cart.cartitems
 
 data class CartItemRequest(
     val userId: Long,

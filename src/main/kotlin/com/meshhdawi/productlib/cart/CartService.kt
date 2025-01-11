@@ -8,7 +8,12 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class CartService(
     private val repository: CartRepository,
-    private val userService: UserService) {
+    private val userService: UserService,
+) {
+    fun deleteCart(cartId: Long) {
+        val cart = getCartById(cartId)
+        repository.delete(cart)
+    }
 
     fun getCartById(cartId: Long): CartEntity {
         return repository.findById(cartId).orElseThrow { IllegalArgumentException("Cart not found") }
@@ -16,9 +21,8 @@ class CartService(
 
     fun getOrCreateCartByUser(userId: Long): CartEntity {
         val user = userService.getUserById(userId)
-        val cartList = repository.findByUserIdAndStatusIs(userId, CartStatus.PENDING)
+        val foundCart = repository.findByUserId(userId)
 
-        if (cartList.isNotEmpty()) return cartList.last()
-        return repository.save(CartEntity(user = user, items = mutableListOf()))
+        return foundCart ?: repository.save(CartEntity(user = user, items = mutableListOf()))
     }
 }
