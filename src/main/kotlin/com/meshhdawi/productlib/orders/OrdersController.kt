@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -22,7 +23,7 @@ class OrdersController(
     @GetMapping
     fun getAllOrders(request: HttpServletRequest): ResponseEntity<List<OrderEntity>> {
         return authService.validateJWTAuth(request) {
-            if (getUserRole() != UserRole.ADMIN) throw IllegalArgumentException("You are not authorized to view all orders.")
+            if (getUserRole() != UserRole.ADMIN) throw IllegalArgumentException("You are not authorized to do this operation.")
             ResponseEntity.ok(orderService.getAllOrders())
         }
     }
@@ -31,7 +32,7 @@ class OrdersController(
     fun getOrderById(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<OrderEntity> {
         return authService.validateJWTAuth(request) {
             val order = orderService.getOrderById(id)
-            if (getUserRole()!= UserRole.ADMIN && getUserId() != order.customerId.id) throw IllegalArgumentException("You are not authorized to view orders for this user.")
+            if (getUserRole() != UserRole.ADMIN && getUserId() != order.customerId.id) throw IllegalArgumentException("You are not authorized to view orders for this user.")
             ResponseEntity.ok(order)
         }
     }
@@ -54,5 +55,16 @@ class OrdersController(
             if (getUserId() != orderRequest.customerId) throw IllegalArgumentException("You are not authorized to create orders for this user.")
             val createdOrder = orderService.createOrder(orderRequest)
             ResponseEntity.ok(createdOrder)
+        }
+
+    @PutMapping("/status")
+    fun updateOrderStatus(
+        @RequestBody orderStatusRequest: OrderStatusRequest,
+        request: HttpServletRequest
+    ): ResponseEntity<OrderEntity> =
+        authService.validateJWTAuth(request) {
+            if (getUserRole() != UserRole.ADMIN) throw IllegalArgumentException("You are not authorized to do this operation.")
+            val updatedOrder = orderService.updateOrderStatus(orderStatusRequest)
+            ResponseEntity.ok(updatedOrder)
         }
 }

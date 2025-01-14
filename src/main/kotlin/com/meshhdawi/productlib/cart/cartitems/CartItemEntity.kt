@@ -29,8 +29,10 @@ data class CartItemEntity(
     var notes: String?,
 
     @Column(name = "created_at", updatable = false)
+    @JsonIgnore
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "updated_at")
+    @JsonIgnore
     var updatedAt: LocalDateTime = LocalDateTime.now()
 )

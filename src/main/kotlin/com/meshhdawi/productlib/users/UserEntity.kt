@@ -34,9 +34,11 @@ data class UserEntity(
     var password: String? = null,
 
     @Column(name = "email_verified", nullable = false)
+    @JsonIgnore
     var emailVerified: Boolean = false,
 
     @Column(name = "phone_verified", nullable = false)
+    @JsonIgnore
     var phoneVerified: Boolean = false,
 
     @Column(name = "role", nullable = false)
@@ -44,8 +46,10 @@ data class UserEntity(
     var role: UserRole = UserRole.CUSTOMER,
 
     @Column(name = "created_at", updatable = false)
+    @JsonIgnore
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "updated_at")
+    @JsonIgnore
     var updatedAt: LocalDateTime = LocalDateTime.now()
 )

@@ -64,8 +64,9 @@ class OrderService(
         val orderItems = cart.items.map { cartItem ->
             val productName = cartItem.product.translations.firstOrNull { it.language == orderRequest.language }?.name
                 ?: cartItem.product.name
-            val productDescription = cartItem.product.translations.firstOrNull { it.language == orderRequest.language }?.description
-                ?: cartItem.product.description
+            val productDescription =
+                cartItem.product.translations.firstOrNull { it.language == orderRequest.language }?.description
+                    ?: cartItem.product.description
 
             orderItemRepository.save(
                 OrderItemEntity(
@@ -85,5 +86,13 @@ class OrderService(
         savedOrder.items.addAll(orderItems)
         cartService.deleteCart(cart.id)
         return savedOrder
+    }
+
+    fun updateOrderStatus(orderStatusRequest: OrderStatusRequest): OrderEntity {
+        val order = orderRepository.findById(orderStatusRequest.orderId)
+            .orElseThrow { IllegalArgumentException("Order not found with ID: ${orderStatusRequest.orderId}") }
+
+        order.status = orderStatusRequest.status
+        return orderRepository.save(order)
     }
 }

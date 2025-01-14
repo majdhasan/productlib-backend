@@ -46,8 +46,10 @@ data class OrderItemEntity(
     val notes: String?,
 
     @Column(name = "created_at", updatable = false)
+    @JsonIgnore
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "updated_at")
+    @JsonIgnore
     val updatedAt: LocalDateTime = LocalDateTime.now()
 )

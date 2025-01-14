@@ -1,5 +1,6 @@
 package com.meshhdawi.productlib.products
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -29,8 +30,10 @@ data class ProductEntity(
     val unit: ProductUnit = ProductUnit.PIECE,
 
     @Column(name = "created_at", updatable = false)
+    @JsonIgnore
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "updated_at")
+    @JsonIgnore
     val updatedAt: LocalDateTime = LocalDateTime.now()
 )

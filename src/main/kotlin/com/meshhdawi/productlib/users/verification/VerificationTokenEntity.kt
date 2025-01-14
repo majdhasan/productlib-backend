@@ -1,5 +1,6 @@
 package com.meshhdawi.productlib.users.verification
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.meshhdawi.productlib.users.UserEntity
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -22,8 +23,10 @@ data class VerificationTokenEntity(
     val expiresAt: LocalDateTime = LocalDateTime.now().plusDays(1),
 
     @Column(name = "created_at", updatable = false)
+    @JsonIgnore
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "updated_at")
+    @JsonIgnore
     var updatedAt: LocalDateTime = LocalDateTime.now()
 )

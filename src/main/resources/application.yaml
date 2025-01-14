@@ -28,7 +28,7 @@ spring:
     locations: classpath:db/migration
 
 cors:
-  originPatterns: http://localhost:8100,https://shop.meshhdawi.com,https://admin.meshhdawi.com
+  originPatterns: http://localhost:8100,https://shop.meshhdawi.com,https://admin.meshhdawi.com,http://localhost:8101
 
 logging:
   level:
