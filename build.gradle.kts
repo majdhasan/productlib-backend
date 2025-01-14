@@ -32,6 +32,7 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
 	implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+	implementation("net.coobird:thumbnailator:0.4.14")
 
 	runtimeOnly("org.flywaydb:flyway-database-postgresql:10.21.0")
 	implementation("org.postgresql:postgresql")

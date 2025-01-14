@@ -16,7 +16,7 @@ class ProductService(
         if (productRequest.image.isEmpty) {
             throw IllegalArgumentException("Image is required")
         }
-        val storeFileName = storageService.storeFile(productRequest.image)
+        val storeFileName = storageService.storeImageVariations(productRequest.image)
 
         val product = ProductEntity(
             name = productRequest.name,

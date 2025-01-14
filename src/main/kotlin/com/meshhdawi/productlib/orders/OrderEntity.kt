@@ -29,6 +29,7 @@ data class OrderEntity(
     val notes: String? = null,
 
     @Column(name = "is_paid")
+    @JsonIgnore
     val isPaid: Boolean = false,
 
     @ManyToOne
