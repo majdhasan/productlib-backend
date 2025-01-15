@@ -1,11 +1,17 @@
 package com.meshhdawi.productlib.users
 
 import com.meshhdawi.productlib.cart.CartService
+import com.meshhdawi.productlib.context.getUserId
+import com.meshhdawi.productlib.context.getUserRole
+import com.meshhdawi.productlib.web.security.AuthService
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -15,7 +21,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/users")
 class UserController(
     private val service: UserService,
-    private val cartService: CartService
+    private val cartService: CartService,
+    private val authService: AuthService
 ) {
 
     @PostMapping("/login")
@@ -32,6 +39,33 @@ class UserController(
     @PostMapping
     fun createUser(@RequestBody request: CreateUserRequest): ResponseEntity<UserEntity> {
         return ResponseEntity.ok(service.createUser(request))
+    }
+
+    @DeleteMapping("/{userId}")
+    fun deleteUser(@PathVariable userId: Long, request: HttpServletRequest) =
+        authService.validateJWTAuth(request) {
+            if (getUserId() != userId && getUserRole() != UserRole.ADMIN) {
+                return@validateJWTAuth ResponseEntity.badRequest().body("You can only delete your own account")
+            }
+            service.deleteUser(userId)
+            return@validateJWTAuth ResponseEntity.noContent().build()
+        }
+
+    @PutMapping("/{userId}/password")
+    fun changeUserPassword(
+        @RequestBody changePasswordRequest: ChangePasswordRequest,
+        request: HttpServletRequest,
+        @PathVariable userId: Long
+    ): ResponseEntity<String> {
+        if (getUserId() != userId && getUserRole() != UserRole.ADMIN) {
+            return ResponseEntity.badRequest().body("You can only change your own password")
+        }
+        val user = service.getUserById(userId)
+        if (user.password == null || !service.checkPassword(changePasswordRequest.oldPassword, user.password!!)) {
+            return ResponseEntity.badRequest().body("Old password is incorrect")
+        }
+        service.changePassword(userId, changePasswordRequest.newPassword)
+        return ResponseEntity.ok("Password changed successfully")
     }
 
     @GetMapping("/verify/{userId}")

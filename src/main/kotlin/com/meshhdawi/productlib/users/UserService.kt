@@ -22,6 +22,9 @@ class UserService(
 
     fun createUser(request: CreateUserRequest): UserEntity {
         validateUserUniqueness(request.email)
+        if (request.password.length < 6) {
+            throw IllegalArgumentException("Password must be at least 6 characters long")
+        }
         val hashedPassword = BCrypt.hashpw(request.password, BCrypt.gensalt())
         val userEntity = UserEntity(
             email = request.email,
@@ -73,6 +76,18 @@ class UserService(
 
         user.emailVerified = true
         verificationTokenRepository.delete(retrievedToken)
+        repository.save(user)
+    }
+
+    fun deleteUser(userId: Long) = repository.deleteById(userId)
+
+    fun checkPassword(password: String, hashedPassword: String): Boolean {
+        return BCrypt.checkpw(password, hashedPassword)
+    }
+
+    fun changePassword(userId: Long, newPassword: String) {
+        val user = getUserById(userId)
+        user.password = BCrypt.hashpw(newPassword, BCrypt.gensalt())
         repository.save(user)
     }
 }
