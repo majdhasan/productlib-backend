@@ -32,7 +32,9 @@ class OrdersController(
     fun getOrderById(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<OrderEntity> {
         return authService.validateJWTAuth(request) {
             val order = orderService.getOrderById(id)
-            if (getUserRole() != UserRole.ADMIN && getUserId() != order.customerId.id) throw IllegalArgumentException("You are not authorized to view orders for this user.")
+            if (getUserRole() != UserRole.ADMIN && getUserId() != order.customerId?.id) {
+                throw IllegalArgumentException("You are not authorized to view orders for this user.")
+            }
             ResponseEntity.ok(order)
         }
     }

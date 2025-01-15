@@ -33,9 +33,9 @@ data class OrderEntity(
     val isPaid: Boolean = false,
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JoinColumn(name = "customer_id")
     @JsonIgnore
-    val customerId: UserEntity,
+    val customerId: UserEntity?,
 
     @Column(nullable = false)
     val phone: String,
