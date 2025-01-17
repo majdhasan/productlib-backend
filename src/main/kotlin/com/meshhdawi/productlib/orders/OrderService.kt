@@ -2,12 +2,15 @@ package com.meshhdawi.productlib.orders
 
 import com.meshhdawi.productlib.cart.CartRepository
 import com.meshhdawi.productlib.cart.CartService
+import com.meshhdawi.productlib.messaging.email.EmailService
 import com.meshhdawi.productlib.orders.orderitems.OrderItemEntity
 import com.meshhdawi.productlib.orders.orderitems.OrderItemRepository
 import com.meshhdawi.productlib.users.UserRepository
+import com.meshhdawi.productlib.users.UserRole
 import com.meshhdawi.productlib.users.UserService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.format.DateTimeFormatter
 
 @Service
 class OrderService(
@@ -16,16 +19,18 @@ class OrderService(
     private val userRepository: UserRepository,
     private val userService: UserService,
     private val cartService: CartService,
-    private val orderItemRepository: OrderItemRepository
+    private val orderItemRepository: OrderItemRepository,
+    private val emailService: EmailService
 ) {
+
+    private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
 
     fun getAllOrders(): List<OrderEntity> {
         return orderRepository.findAll()
     }
 
     fun getOrderById(id: Long): OrderEntity {
-        return orderRepository.findById(id)
-            .orElseThrow { IllegalArgumentException("Order not found with ID: $id") }
+        return orderRepository.findById(id).orElseThrow { IllegalArgumentException("Order not found with ID: $id") }
     }
 
     fun getOrdersByCustomer(customerId: Long): List<OrderEntity> {
@@ -85,7 +90,10 @@ class OrderService(
 
         savedOrder.items.addAll(orderItems)
         cartService.deleteCart(cart.id)
-        return savedOrder
+        return savedOrder.also {
+            savedOrder.sendOrderConfirmationEmail()
+            savedOrder.notifyAdmins()
+        }
     }
 
     fun updateOrderStatus(orderStatusRequest: OrderStatusRequest): OrderEntity {
@@ -94,5 +102,134 @@ class OrderService(
 
         order.status = orderStatusRequest.status
         return orderRepository.save(order)
+    }
+
+    fun OrderEntity.sendOrderConfirmationEmail() {
+        customerId?.let {
+            val arabicText: String = """
+            <html>
+            <body>
+                <p>تم استلام طلبك بنجاح</p>
+                <p>رقم الطلب: $id</p>
+                <p>العنوان: $address</p>
+                <p>رقم الهاتف: $phone</p>
+                <p>${
+                wishedPickupTime?.let { time ->
+                    "الوقت المفضل للاستلام: ${time.format(formatter)}"
+                } ?: " في أقرب وقت ممكن"
+            }</p>
+<p>المنتجات:</p>
+<table border="1">
+    <tr>
+        <th>الكمية</th>
+        <th>اسم المنتج</th>
+        <th>السعر</th>
+        <th>ملاحظات</th>
+    </tr>
+    ${
+                items.joinToString("") { item ->
+                    """
+        <tr>
+            <td>${item.quantity}</td>
+            <td>${item.productName}</td>
+            <td>${item.productPrice}₪</td>
+            <td>${item.notes}</td>
+        </tr>
+        """.trimIndent()
+                }
+            }
+</table>
+            </body>
+            </html>
+        """.trimIndent()
+
+            val hebrewText: String = """
+            <html>
+            <body>
+                <p>ההזמנה שלך התקבלה בהצלחה</p>
+                <p>מספר הזמנה: $id</p>
+                <p>כתובת: $address</p>
+                <p>מספר טלפון: $phone</p>
+                <p>${
+                wishedPickupTime?.let { time ->
+                    "זמן איסוף מועדף: ${time.format(formatter)}"
+                } ?: "בהקדם האפשרי"
+            }</p>
+<p>מוצרים:</p>
+<table border="1">
+    <tr>
+        <th>כמות</th>
+        <th>שם המוצר</th>
+        <th>מחיר</th>
+        <th>הערות</th>
+    </tr>
+    ${
+                items.joinToString("") { item ->
+                    """
+        <tr>
+            <td>${item.quantity}</td>
+            <td>${item.productName}</td>
+            <td>${item.productPrice}₪</td>
+            <td>${item.notes}</td>
+        </tr>
+        """.trimIndent()
+                }
+            }
+</table>
+            </body>
+            </html>
+        """.trimIndent()
+
+            val combinedText = "$arabicText<br><br>$hebrewText"
+
+            if (it.emailVerified) {
+                emailService.sendEmail(it.email, "تاكيد الطلب", combinedText, isHtml = true)
+            }
+        }
+    }
+
+    fun OrderEntity.notifyAdmins() {
+        val admins = userRepository.findByRole(UserRole.ADMIN)
+        val text: String = """
+            <html>
+            <body>
+                <p>هناك طلبيه جديده</p>
+                <p>رقم الطلب: $id</p>
+                <p>العميل: $firstName $lastName</p>
+                <p>البريد الالكتروني: ${customerId?.email}</p>
+                <p>العنوان: $address</p>
+                <p>رقم الهاتف: $phone</p>
+                <p>${
+            wishedPickupTime?.let { time ->
+                "الوقت المفضل للاستلام: ${time.format(formatter)}"
+            } ?: "العميل يريد استلام الطلب في أقرب وقت ممكن"
+        }</p>
+<p>المنتجات:</p>
+<table border="1">
+    <tr>
+        <th>الكمية</th>
+        <th>اسم المنتج</th>
+        <th>السعر</th>
+        <th>ملاحظات</th>
+    </tr>
+    ${
+            items.joinToString("") { item ->
+                """
+        <tr>
+            <td>${item.quantity}</td>
+            <td>${item.productName}</td>
+            <td>${item.productPrice}₪</td>
+            <td>${item.notes}</td>
+        </tr>
+        """.trimIndent()
+            }
+        }
+</table>
+            </body>
+            </html>
+        """.trimIndent()
+        admins.forEach { admin ->
+            emailService.sendEmail(admin.email, "طلبيه جديده", text, isHtml = true)
+        }
     }
 }
