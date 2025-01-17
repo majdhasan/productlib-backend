@@ -1,5 +1,6 @@
 package com.meshhdawi.productlib.users
 
+import com.meshhdawi.productlib.customexceptions.ErrorResponse
 import com.meshhdawi.productlib.customexceptions.TokenExpiredException
 import com.meshhdawi.productlib.customexceptions.TokenNotFoundException
 import com.meshhdawi.productlib.customexceptions.UserNotFoundException
@@ -7,6 +8,7 @@ import com.meshhdawi.productlib.web.security.JwtUtil
 import com.meshhdawi.productlib.users.verification.VerificationService
 import com.meshhdawi.productlib.users.verification.VerificationTokenRepository
 import org.mindrot.jbcrypt.BCrypt
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -20,11 +22,16 @@ class UserService(
     private val jwtUtil: JwtUtil
 ) {
 
-    fun createUser(request: CreateUserRequest): UserEntity {
-        validateUserUniqueness(request.email)
-        if (request.password.length < 6) {
+    private fun validatePassword(password: String) {
+        if (password.length < 6) {
             throw IllegalArgumentException("Password must be at least 6 characters long")
         }
+    }
+
+    fun createUser(request: CreateUserRequest): UserEntity {
+        validateUserUniqueness(request.email)
+        validatePassword(request.password)
+
         val hashedPassword = BCrypt.hashpw(request.password, BCrypt.gensalt())
         val userEntity = UserEntity(
             email = request.email,
@@ -90,4 +97,20 @@ class UserService(
         user.password = BCrypt.hashpw(newPassword, BCrypt.gensalt())
         repository.save(user)
     }
+
+    fun changePassword(changePasswordRequest: ChangePasswordRequest, userId: Long): ResponseEntity<Any> {
+        val user = getUserById(userId)
+        if (user.password == null || !checkPassword(changePasswordRequest.oldPassword, user.password!!)) {
+            return ResponseEntity.badRequest().body(ErrorResponse(message = "Invalid old password"))
+        }
+        validatePassword(changePasswordRequest.newPassword)
+        changePassword(userId, changePasswordRequest.newPassword)
+        return ResponseEntity.noContent().build()
+    }
+
+//    fun forgotPassword(email: String) {
+//        val user = repository.findByEmail(email)
+//            ?: throw IllegalArgumentException("User with email $email not found")
+//        verificationService.createVerificationToken(user)
+//    }
 }

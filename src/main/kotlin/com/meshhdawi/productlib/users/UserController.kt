@@ -3,6 +3,7 @@ package com.meshhdawi.productlib.users
 import com.meshhdawi.productlib.cart.CartService
 import com.meshhdawi.productlib.context.getUserId
 import com.meshhdawi.productlib.context.getUserRole
+import com.meshhdawi.productlib.customexceptions.ErrorResponse
 import com.meshhdawi.productlib.web.security.AuthService
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.MediaType
@@ -45,7 +46,8 @@ class UserController(
     fun deleteUser(@PathVariable userId: Long, request: HttpServletRequest) =
         authService.validateJWTAuth(request) {
             if (getUserId() != userId && getUserRole() != UserRole.ADMIN) {
-                return@validateJWTAuth ResponseEntity.badRequest().body("You can only delete your own account")
+                return@validateJWTAuth ResponseEntity.badRequest()
+                    .body(ErrorResponse(message = "You can only delete your own account"))
             }
             service.deleteUser(userId)
             return@validateJWTAuth ResponseEntity.noContent().build()
@@ -56,16 +58,12 @@ class UserController(
         @RequestBody changePasswordRequest: ChangePasswordRequest,
         request: HttpServletRequest,
         @PathVariable userId: Long
-    ): ResponseEntity<String> {
+    ): ResponseEntity<Any> = authService.validateJWTAuth(request) {
         if (getUserId() != userId && getUserRole() != UserRole.ADMIN) {
-            return ResponseEntity.badRequest().body("You can only change your own password")
+            return@validateJWTAuth ResponseEntity.badRequest()
+                .body(ErrorResponse(message = "You can only change your own password"))
         }
-        val user = service.getUserById(userId)
-        if (user.password == null || !service.checkPassword(changePasswordRequest.oldPassword, user.password!!)) {
-            return ResponseEntity.badRequest().body("Old password is incorrect")
-        }
-        service.changePassword(userId, changePasswordRequest.newPassword)
-        return ResponseEntity.ok("Password changed successfully")
+        return@validateJWTAuth service.changePassword(changePasswordRequest, userId)
     }
 
     @GetMapping("/verify/{userId}")
@@ -98,4 +96,11 @@ class UserController(
         }
 
     }
+
+//    // forgot password
+//    @PostMapping("/forgot-password")
+//    fun forgotPassword(@RequestBody forgotPasswordRequest: ForgotPasswordRequest): ResponseEntity<Any> {
+//        service.forgotPassword(forgotPasswordRequest.email)
+//        return ResponseEntity.noContent().build()
+//    }
 }
