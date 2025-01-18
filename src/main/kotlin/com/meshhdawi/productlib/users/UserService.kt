@@ -4,9 +4,9 @@ import com.meshhdawi.productlib.customexceptions.ErrorResponse
 import com.meshhdawi.productlib.customexceptions.TokenExpiredException
 import com.meshhdawi.productlib.customexceptions.TokenNotFoundException
 import com.meshhdawi.productlib.customexceptions.UserNotFoundException
-import com.meshhdawi.productlib.web.security.JwtUtil
 import com.meshhdawi.productlib.users.verification.VerificationService
 import com.meshhdawi.productlib.users.verification.VerificationTokenRepository
+import com.meshhdawi.productlib.web.security.JwtUtil
 import org.mindrot.jbcrypt.BCrypt
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -106,6 +106,10 @@ class UserService(
         validatePassword(changePasswordRequest.newPassword)
         changePassword(userId, changePasswordRequest.newPassword)
         return ResponseEntity.noContent().build()
+    }
+
+    fun refreshToken(jwtToken: String): String {
+        return jwtUtil.refreshToken(jwtToken) ?: throw IllegalArgumentException("Invalid token")
     }
 
 //    fun forgotPassword(email: String) {

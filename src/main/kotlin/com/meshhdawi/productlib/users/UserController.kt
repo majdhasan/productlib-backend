@@ -5,6 +5,8 @@ import com.meshhdawi.productlib.context.getUserId
 import com.meshhdawi.productlib.context.getUserRole
 import com.meshhdawi.productlib.customexceptions.ErrorResponse
 import com.meshhdawi.productlib.web.security.AuthService
+import com.meshhdawi.productlib.web.security.JwtUtil
+import com.meshhdawi.productlib.web.security.RefreshTokenRequest
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -95,6 +97,12 @@ class UserController(
             )
         }
 
+    }
+
+    @PostMapping("/refresh-token")
+    fun refreshToken(@RequestBody refreshTokenRequest: RefreshTokenRequest): ResponseEntity<Map<String, String>> {
+        val token = service.refreshToken(refreshTokenRequest.token)
+        return ResponseEntity.ok(mapOf("token" to token))
     }
 
 //    // forgot password

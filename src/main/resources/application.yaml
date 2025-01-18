@@ -39,5 +39,6 @@ meshhdawi:
     email: ${EMAIL_FROM}
   fileStorage:
     uploadDir: src/main/resources/static/uploads
+  jwt-secret: ${JWT_SECRET}
 
 

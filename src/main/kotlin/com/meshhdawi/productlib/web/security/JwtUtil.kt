@@ -1,7 +1,9 @@
 package com.meshhdawi.productlib.web.security
 
+import com.meshhdawi.productlib.AppProperties
 import com.meshhdawi.productlib.users.UserRole
 import io.jsonwebtoken.Claims
+import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Component
@@ -9,9 +11,9 @@ import java.util.Date
 import javax.crypto.SecretKey
 
 @Component
-class JwtUtil {
-    // TODO make this secret key more secure
-    private final var secret: String = "your-super-secure-256-bit-secret-key-12345"
+class JwtUtil(appProperties: AppProperties) {
+
+    private final var secret: String = appProperties.jwtSecret
     var secretKey: SecretKey = Keys.hmacShaKeyFor(secret.toByteArray(Charsets.UTF_8))
 
     fun generateToken(userId: Long, role: UserRole): String {
@@ -35,6 +37,9 @@ class JwtUtil {
         return try {
             extractAllClaims(token)
             true
+        } catch (e: ExpiredJwtException) {
+            println("Token has expired")
+            throw e
         } catch (e: Exception) {
             false
         }
@@ -46,5 +51,19 @@ class JwtUtil {
             .build()
             .parseClaimsJws(token)
             .body
+    }
+
+    fun refreshToken(token: String): String? {
+        return try {
+            val claims = extractAllClaims(token)
+            val userId = (claims["userId"] as Int).toLong()
+            generateToken(userId, UserRole.valueOf(claims["role"] as String))
+        } catch (e: ExpiredJwtException) {
+            val claims = e.claims
+            val userId = (claims["userId"] as Int).toLong()
+            generateToken(userId, UserRole.valueOf(claims["role"] as String))
+        } catch (e: Exception) {
+            null
+        }
     }
 }

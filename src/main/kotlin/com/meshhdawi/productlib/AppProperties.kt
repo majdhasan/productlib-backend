@@ -6,7 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class AppProperties(
     val emailConfig: EmailConfig,
     val fileStorage: FileStorage,
-    ) {
+    val jwtSecret: String,
+) {
 
     data class EmailConfig(
         val email: String,
