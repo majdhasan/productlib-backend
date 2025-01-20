@@ -45,6 +45,9 @@ data class UserEntity(
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.CUSTOMER,
 
+    @Column(name = "agree_to_receive_messages", nullable = false)
+    var agreeToReceiveMessages: Boolean = false,
+
     @Column(name = "created_at", updatable = false)
     @JsonIgnore
     val createdAt: LocalDateTime = LocalDateTime.now(),

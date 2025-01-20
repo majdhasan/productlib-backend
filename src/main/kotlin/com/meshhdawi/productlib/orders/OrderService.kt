@@ -182,8 +182,8 @@ class OrderService(
 
             val combinedText = "$arabicText<br><br>$hebrewText"
 
-            if (it.emailVerified) {
-                emailService.sendEmail(it.email, "تاكيد الطلب", combinedText, isHtml = true)
+            if (it.emailVerified && it.agreeToReceiveMessages) {
+                emailService.sendEmail(it.email, "تاكيد الطلب | אישור הזמנה", combinedText, isHtml = true)
             }
         }
     }

@@ -31,16 +31,7 @@ class UserService(
     fun createUser(request: CreateUserRequest): UserEntity {
         validateUserUniqueness(request.email)
         validatePassword(request.password)
-
-        val hashedPassword = BCrypt.hashpw(request.password, BCrypt.gensalt())
-        val userEntity = UserEntity(
-            email = request.email,
-            firstName = request.firstName,
-            lastName = request.lastName,
-            password = hashedPassword,
-            phoneNumber = request.phoneNumber
-        )
-        val savedUser = repository.save(userEntity)
+        val savedUser = repository.save(request.toUserEntity())
         verificationService.createVerificationToken(savedUser)
         return savedUser
     }
