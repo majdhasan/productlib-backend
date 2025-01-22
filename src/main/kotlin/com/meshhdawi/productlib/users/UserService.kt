@@ -4,6 +4,7 @@ import com.meshhdawi.productlib.customexceptions.ErrorResponse
 import com.meshhdawi.productlib.customexceptions.TokenExpiredException
 import com.meshhdawi.productlib.customexceptions.TokenNotFoundException
 import com.meshhdawi.productlib.customexceptions.UserNotFoundException
+import com.meshhdawi.productlib.messaging.email.EmailService
 import com.meshhdawi.productlib.users.verification.VerificationService
 import com.meshhdawi.productlib.users.verification.VerificationTokenRepository
 import com.meshhdawi.productlib.web.security.JwtUtil
@@ -12,6 +13,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 @Service
 @Transactional
@@ -19,8 +23,19 @@ class UserService(
     private val repository: UserRepository,
     private val verificationTokenRepository: VerificationTokenRepository,
     private val verificationService: VerificationService,
-    private val jwtUtil: JwtUtil
+    private val jwtUtil: JwtUtil,
+    private val emailService: EmailService
 ) {
+
+
+    private val resetAttempts = ConcurrentHashMap<String, Long>()
+    private val scheduler = Executors.newScheduledThreadPool(1)
+
+    init {
+        scheduler.scheduleAtFixedRate({
+            resetAttempts.clear()
+        }, 24, 24, TimeUnit.HOURS)
+    }
 
     private fun validatePassword(password: String) {
         if (password.length < 6) {
@@ -103,9 +118,36 @@ class UserService(
         return jwtUtil.refreshToken(jwtToken) ?: throw IllegalArgumentException("Invalid token")
     }
 
-//    fun forgotPassword(email: String) {
-//        val user = repository.findByEmail(email)
-//            ?: throw IllegalArgumentException("User with email $email not found")
-//        verificationService.createVerificationToken(user)
-//    }
+    fun forgotPassword(email: String) {
+        val user = repository.findByEmail(email)
+            ?: throw IllegalArgumentException("User with email $email not found")
+
+        if (resetAttempts.containsKey(email)) {
+            throw IllegalArgumentException("Password reset already requested. Please try again after 24 hours.")
+        }
+        verificationService.createRandomToken(6).also { token ->
+            user.password = BCrypt.hashpw(token, BCrypt.gensalt())
+            repository.save(user).run {
+                sendNewPasswordEmail(user, token)
+            }
+            resetAttempts[email] = System.currentTimeMillis()
+        }
+    }
+
+    private fun sendNewPasswordEmail(user: UserEntity, newPassword: String) {
+        emailService.sendEmail(
+            to = user.email,
+            subject = "تغيير كلمة المرور",
+            text = """
+                <h1> مرحباً ${user.firstName},</h1>
+                <p>كلمة المرور الجديدة هي: $newPassword</p>
+                <p>يرجى تغييرها بعد تسجيل الدخول.</p>
+                
+                <p>شكراً لاستخدامكم خدماتنا.</p>
+                <p>فريق المشهداوي</p>
+            """.trimIndent(),
+
+            isHtml = true
+        )
+    }
 }

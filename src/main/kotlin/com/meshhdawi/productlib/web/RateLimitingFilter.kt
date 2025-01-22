@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 class RateLimitingFilter : OncePerRequestFilter() {
 
     private val requestCounts = ConcurrentHashMap<String, Pair<Long, Int>>()
-    private val maxRequests = 500 // Max requests per minute
+    private val maxRequests = 250 // Max requests per minute
     private val timeWindow = TimeUnit.MINUTES.toMillis(1) // 1-minute window
 
     override fun doFilterInternal(

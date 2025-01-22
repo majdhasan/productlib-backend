@@ -12,7 +12,7 @@ class VerificationService(
 
 ) {
 
-    private fun createRandomToken(digits: Int): String {
+    fun createRandomToken(digits: Int): String {
         val sb = StringBuilder(digits)
         for (i in 0 until digits) {
             sb.append(Random.nextInt(10))

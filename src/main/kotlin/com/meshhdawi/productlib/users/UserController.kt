@@ -105,10 +105,10 @@ class UserController(
         return ResponseEntity.ok(mapOf("token" to token))
     }
 
-//    // forgot password
-//    @PostMapping("/forgot-password")
-//    fun forgotPassword(@RequestBody forgotPasswordRequest: ForgotPasswordRequest): ResponseEntity<Any> {
-//        service.forgotPassword(forgotPasswordRequest.email)
-//        return ResponseEntity.noContent().build()
-//    }
+    // forgot password
+    @PostMapping("/forgot-password")
+    fun forgotPassword(@RequestBody forgotPasswordRequest: ForgotPasswordRequest): ResponseEntity<Any> {
+        service.forgotPassword(forgotPasswordRequest.email)
+        return ResponseEntity.noContent().build()
+    }
 }
