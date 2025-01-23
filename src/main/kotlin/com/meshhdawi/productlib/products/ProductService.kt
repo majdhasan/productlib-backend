@@ -1,6 +1,8 @@
 package com.meshhdawi.productlib.products
 
 import com.meshhdawi.productlib.fileupload.FileStorageService
+import com.meshhdawi.productlib.products.translations.ProductTranslationEntity
+import com.meshhdawi.productlib.products.translations.ProductTranslationRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,7 +25,8 @@ class ProductService(
             description = productRequest.description,
             price = productRequest.price,
             image = storeFileName,
-            unit = productRequest.unit
+            unit = productRequest.unit,
+            category = productRequest.category
         )
 
         val savedProduct = productRepository.save(product)
@@ -43,19 +46,28 @@ class ProductService(
             .orElseThrow { IllegalArgumentException("There was an issue saving the product") }
     }
 
-    fun updateProduct(id: Long, product: ProductEntity): ProductEntity {
+    fun updateProduct(id: Long, productUpdateRequest: ProductUpdateRequest): ProductEntity {
         val existingProduct = getProductsById(id)
         return productRepository.save(
             existingProduct.copy(
-                name = product.name,
-                translations = product.translations,
-                image = product.image,
-                description = product.description,
-                price = product.price,
-                updatedAt = product.updatedAt
+                name = productUpdateRequest.name,
+                description = productUpdateRequest.description,
+                price = productUpdateRequest.price,
+                unit = productUpdateRequest.unit,
+                category = productUpdateRequest.category,
             )
         )
     }
+
+//    fun updateProductImage(id: Long, image: MultipartFile): ProductEntity {
+//        val existingProduct = getProductsById(id)
+//        val storeFileName = storageService.storeImageVariations(image)
+//        return productRepository.save(
+//            existingProduct.copy(
+//                image = storeFileName
+//            )
+//        )
+//    }
 
     fun getAllProducts(): List<ProductEntity> = productRepository.findAll()
 

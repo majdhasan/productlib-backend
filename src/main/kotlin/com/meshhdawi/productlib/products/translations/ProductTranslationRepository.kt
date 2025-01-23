@@ -1,4 +1,4 @@
-package com.meshhdawi.productlib.products
+package com.meshhdawi.productlib.products.translations
 
 import org.springframework.data.jpa.repository.JpaRepository
 

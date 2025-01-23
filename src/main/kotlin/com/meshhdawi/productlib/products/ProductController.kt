@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -29,6 +30,7 @@ class ProductController(
         @RequestParam("price") price: Double,
         @RequestParam("unit") unit: String,
         @RequestParam("image") image: MultipartFile,
+        @RequestParam("category") category: String,
         @RequestParam("translations") translationsJson: String,
         request: HttpServletRequest
     ): ResponseEntity<ProductEntity> = authService.validateJWTAuth(request) {
@@ -42,22 +44,37 @@ class ProductController(
             price = price,
             image = image,
             translations = translations,
-            unit = ProductUnit.valueOf(unit)
+            unit = ProductUnit.valueOf(unit),
+            category = ProductCategory.valueOf(category)
         )
 
         ResponseEntity.ok(service.createProduct(productRequest))
     }
 
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     fun updateProduct(
         @PathVariable id: Long,
-        product: ProductEntity,
+        productUpdateRequest: ProductUpdateRequest,
         request: HttpServletRequest
     ): ResponseEntity<ProductEntity> =
         authService.validateJWTAuth(request) {
             if (getUserRole() != UserRole.ADMIN) throw IllegalArgumentException("You are not authorized to update a product.")
-            ResponseEntity.ok(service.updateProduct(id, product))
+            service.updateProduct(id, productUpdateRequest)
+            return@validateJWTAuth ResponseEntity.ok().build()
         }
+
+//    @PutMapping("/{id}/image")
+//    fun updateProductImage(
+//        @PathVariable id: Long,
+//        @RequestParam("image") productImage: MultipartFile,
+//        request: HttpServletRequest
+//    ): ResponseEntity<ProductEntity> =
+//        authService.validateJWTAuth(request) {
+//            if (getUserRole() != UserRole.ADMIN) throw IllegalArgumentException("You are not authorized to update a product.")
+//            service.updateProductImage(id, productImage)
+//
+//            return@validateJWTAuth ResponseEntity.ok().build()
+//        }
 
     @GetMapping
     fun getAllProducts(): ResponseEntity<List<ProductEntity>> = ResponseEntity.ok(service.getAllProducts())

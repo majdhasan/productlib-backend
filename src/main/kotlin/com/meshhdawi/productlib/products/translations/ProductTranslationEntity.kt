@@ -1,6 +1,7 @@
-package com.meshhdawi.productlib.products
+package com.meshhdawi.productlib.products.translations
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.meshhdawi.productlib.products.ProductEntity
 import jakarta.persistence.*
 
 @Entity

@@ -1,6 +1,7 @@
 package com.meshhdawi.productlib.products
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.meshhdawi.productlib.products.translations.ProductTranslationEntity
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -28,6 +29,10 @@ data class ProductEntity(
 
     @Column(nullable = false)
     val unit: ProductUnit = ProductUnit.PIECE,
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    val category: ProductCategory = ProductCategory.ROLL,
 
     @Column(name = "created_at", updatable = false)
     @JsonIgnore

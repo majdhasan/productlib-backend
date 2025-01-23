@@ -31,7 +31,7 @@ class FileStorageService(appProperties: AppProperties) {
 
         // Resize the image to a width of 500 pixels while maintaining the aspect ratio
         Thumbnails.of(filePath.toFile())
-            .width(500)
+            .width(800)
             .toFile(resizedFilePath.toFile())
 
         // Create a thumbnail with size 80x80 pixels

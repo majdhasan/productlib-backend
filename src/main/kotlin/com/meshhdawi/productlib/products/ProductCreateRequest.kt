@@ -10,6 +10,7 @@ data class ProductCreateRequest(
     val price: Double,
     val image: MultipartFile,
     val unit: ProductUnit,
+    val category: ProductCategory,
     val translations: List<ProductTranslationRequest> = emptyList()
 )
 
