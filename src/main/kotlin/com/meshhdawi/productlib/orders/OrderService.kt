@@ -189,7 +189,7 @@ class OrderService(
     }
 
     fun OrderEntity.notifyAdmins() {
-        val admins = userRepository.findByRole(UserRole.ADMIN)
+        val admins = userService.getUsersByRole(UserRole.ADMIN)
         val text: String = """
             <html>
             <body>

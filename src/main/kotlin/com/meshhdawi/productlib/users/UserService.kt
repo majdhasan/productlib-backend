@@ -150,4 +150,8 @@ class UserService(
             isHtml = true
         )
     }
+
+    fun getUsersByRole(role: UserRole): MutableList<UserEntity> {
+        return repository.findByRole(role)
+    }
 }
