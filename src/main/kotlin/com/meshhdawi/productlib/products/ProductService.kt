@@ -5,6 +5,7 @@ import com.meshhdawi.productlib.products.translations.ProductTranslationEntity
 import com.meshhdawi.productlib.products.translations.ProductTranslationRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional
@@ -59,15 +60,15 @@ class ProductService(
         )
     }
 
-//    fun updateProductImage(id: Long, image: MultipartFile): ProductEntity {
-//        val existingProduct = getProductsById(id)
-//        val storeFileName = storageService.storeImageVariations(image)
-//        return productRepository.save(
-//            existingProduct.copy(
-//                image = storeFileName
-//            )
-//        )
-//    }
+    fun updateProductImage(id: Long, image: MultipartFile): ProductEntity {
+        val existingProduct = getProductsById(id)
+        val storeFileName = storageService.storeImageVariations(image)
+        return productRepository.save(
+            existingProduct.copy(
+                image = storeFileName
+            )
+        )
+    }
 
     fun getAllProducts(): List<ProductEntity> = productRepository.findAll()
 
