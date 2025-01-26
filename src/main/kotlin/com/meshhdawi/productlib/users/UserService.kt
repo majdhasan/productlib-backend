@@ -51,6 +51,18 @@ class UserService(
         return savedUser
     }
 
+    fun updateUser(userUpdateRequest: UserUpdateRequest): UserEntity {
+        val user = getUserById(userUpdateRequest.id)
+        return repository.save(
+            user.copy(
+                firstName = userUpdateRequest.firstName,
+                lastName = userUpdateRequest.lastName,
+                phoneNumber = userUpdateRequest.phoneNumber,
+                agreeToReceiveMessages = userUpdateRequest.agreeToReceiveMessages
+            )
+        )
+    }
+
     fun authenticateUser(email: String, password: String): Map<String, Any> {
         val user: UserEntity = repository.findByEmail(email)
             ?: throw IllegalArgumentException("User with email $email not found")

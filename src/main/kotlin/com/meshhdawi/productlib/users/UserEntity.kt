@@ -43,6 +43,7 @@ data class UserEntity(
 
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
+    @JsonIgnore
     var role: UserRole = UserRole.CUSTOMER,
 
     @Column(name = "agree_to_receive_messages", nullable = false)

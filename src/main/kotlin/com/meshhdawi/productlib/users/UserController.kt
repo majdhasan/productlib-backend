@@ -44,6 +44,17 @@ class UserController(
         return ResponseEntity.ok(service.createUser(request))
     }
 
+    @PutMapping
+    fun updateUser(@RequestBody userUpdateRequest: UserUpdateRequest, request: HttpServletRequest): ResponseEntity<Any> =
+        authService.validateJWTAuth(request) {
+            val userId = getUserId()
+            if (getUserRole() != UserRole.ADMIN && userUpdateRequest.id != userId) {
+                return@validateJWTAuth ResponseEntity.badRequest()
+                    .body(ErrorResponse(message = "You can only update your own account"))
+            }
+            return@validateJWTAuth ResponseEntity.ok(service.updateUser(userUpdateRequest))
+        }
+
     @DeleteMapping("/{userId}")
     fun deleteUser(@PathVariable userId: Long, request: HttpServletRequest) =
         authService.validateJWTAuth(request) {
