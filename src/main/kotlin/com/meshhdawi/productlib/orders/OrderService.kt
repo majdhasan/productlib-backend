@@ -3,6 +3,8 @@ package com.meshhdawi.productlib.orders
 import com.meshhdawi.productlib.cart.CartRepository
 import com.meshhdawi.productlib.cart.CartService
 import com.meshhdawi.productlib.messaging.email.EmailService
+import com.meshhdawi.productlib.messaging.telegram.TelegramAdminRepository
+import com.meshhdawi.productlib.messaging.telegram.TelegramBot
 import com.meshhdawi.productlib.orders.orderitems.OrderItemEntity
 import com.meshhdawi.productlib.orders.orderitems.OrderItemRepository
 import com.meshhdawi.productlib.users.UserRepository
@@ -20,7 +22,9 @@ class OrderService(
     private val userService: UserService,
     private val cartService: CartService,
     private val orderItemRepository: OrderItemRepository,
-    private val emailService: EmailService
+    private val emailService: EmailService,
+    private val telegramBot: TelegramBot,
+    private val telegramAdminRepository: TelegramAdminRepository
 ) {
 
     private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
@@ -231,5 +235,34 @@ class OrderService(
         admins.forEach { admin ->
             emailService.sendEmail(admin.email, "طلبيه جديده", text, isHtml = true)
         }
+        val telegramMessage = """
+            هناك طلبيه جديده
+            رقم الطلب: $id
+            العميل: $firstName $lastName
+            البريد الالكتروني: ${customerId?.email}
+            العنوان: $address
+            رقم الهاتف: $phone
+            ${
+            wishedPickupTime?.let { time ->
+                "الوقت المفضل للاستلام: ${time.format(formatter)}"
+            } ?: "العميل يريد استلام الطلب في أقرب وقت ممكن"
+        }
+            المنتجات:
+            ${
+            items.joinToString("\n") { item ->
+                """
+                الكمية: ${item.quantity}
+                اسم المنتج: ${item.productName}
+                السعر: ${item.productPrice}₪
+                ملاحظات: ${item.notes}
+                ----------------
+                """.trimIndent()
+            }
+        }
+        """.trimIndent()
+        telegramAdminRepository.findAll().forEach {
+            telegramBot.sendMessage(it.chatId, telegramMessage)
+        }
+
     }
 }

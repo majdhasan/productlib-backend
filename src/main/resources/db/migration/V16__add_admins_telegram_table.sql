@@ -1,0 +1,8 @@
+CREATE TABLE telegram_admins
+(
+    id         SERIAL PRIMARY KEY,
+    user_id    BIGINT NOT NULL,
+    chat_id    VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
