@@ -34,13 +34,19 @@ class TelegramBot(appProperties: AppProperties) : LongPollingSingleThreadUpdateC
 
             println("Received message: $messageText from chatId: $chatId")
 
+            val answer: String = """
+                اهلا وسهلا فيك من مخبز المشهداوي.
+                رقم التشات الخاص بك هو: 
+                $chatId
+ابعت الرقم لاحد عمال مخبز المشهداوي مع ذكر ايميلك لاضافتك للخدمه.
+                شكرا لاختياركم مخبز المشهداوي.
+            """.trimIndent()
             val message = SendMessage.builder()
                 .chatId(chatId)
-                .text(messageText)
+                .text(answer)
                 .build()
-
             try {
-                telegramClient.execute(message) // Sending our message object to user
+                telegramClient.execute(message)
             } catch (e: TelegramApiException) {
                 e.printStackTrace()
             }

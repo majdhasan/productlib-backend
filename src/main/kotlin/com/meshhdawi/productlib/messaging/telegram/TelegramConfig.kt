@@ -8,10 +8,14 @@ import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication
 @Configuration
 class TelegramConfig(
     private val appProperties: AppProperties,
-    private val telegramBot: TelegramBot
+    private val telegramBot: TelegramBot,
 ) {
     @PostConstruct
     fun startTelegramBot() {
+        if (appProperties.telegramToken.isBlank() || appProperties.telegramToken.contains("TELEGRAM_TOKEN")) {
+            return
+        }
+
         TelegramBotsLongPollingApplication().registerBot(appProperties.telegramToken, telegramBot)
     }
 }
