@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.servlet.resource.NoResourceFoundException
 
 @ControllerAdvice
 class GlobalExceptionHandler {
@@ -19,6 +20,13 @@ class GlobalExceptionHandler {
         logger.warn("IllegalArgumentException: {}", message) // Log warning level for client errors
         val response = mapOf("error" to message)
         return ResponseEntity(response, HttpStatus.BAD_REQUEST) // HTTP 400: Bad Request
+    }
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleNoResourceFoundException(ex: NoResourceFoundException): ResponseEntity<Map<String, String>> {
+        logger.warn("NoResourceFoundException: {}", ex.message) // Log only the missing resource message
+        val response = mapOf("error" to "Resource not found.")
+        return ResponseEntity(response, HttpStatus.NOT_FOUND) // HTTP 404: Not Found
     }
 
     @ExceptionHandler(Exception::class)

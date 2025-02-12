@@ -232,7 +232,7 @@ class OrderService(
             </body>
             </html>
         """.trimIndent()
-        admins.forEach { admin ->
+        admins.filter { it.agreeToReceiveMessages }.forEach { admin ->
             emailService.sendEmail(admin.email, "طلبيه جديده", text, isHtml = true)
         }
         val telegramMessage = """

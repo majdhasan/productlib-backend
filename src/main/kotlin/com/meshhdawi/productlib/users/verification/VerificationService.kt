@@ -36,24 +36,19 @@ class VerificationService(
 
         emailService.sendEmail(
             to = email,
-            subject = "Verify your account",
+            subject = "تأكيد الحساب",
             text = """
-                <h1>Hello $firstName,</h1>
-                <p>This is a verification email from Meshhdawi.</p>
-                
-                <p>Please use the following token to verify your account:</p>
-                
-                <p><strong>$token</strong></p>
-                
-                <p><a href="https://api.meshhdawi.com/users/verify/$id?token=$token">Click here to verify your account</a></p>
-                <p> press on the link or copy and paste it in your browser.</p>
-                
-                https://api.meshhdawi.com/users/verify/$id?token=$token
-                
-                <p>This token will expire in 24 hours.</p> 
-                
-                <p>If you did not request this token, please ignore this email.</p>
-                <p>Thank you.</p>
+            <h1>مرحباً $firstName,</h1>
+            <p>هذه رسالة تأكيد من مشهداوي.</p>
+            <p><a href="https://api.meshhdawi.com/users/verify/$id?token=$token">اضغط هنا لتأكيد حسابك</a></p>
+            <p>اضغط على الرابط أو انسخه والصقه في متصفحك.</p>
+            
+            https://api.meshhdawi.com/users/verify/$id?token=$token
+            
+            <p>سينتهي صلاحية هذا الرمز خلال 24 ساعة.</p>
+            
+            <p>إذا لم تطلب هذا الرمز، يرجى تجاهل هذه الرسالة.</p>
+            <p>شكراً لك.</p>
             """.trimIndent(),
             isHtml = true
         )
