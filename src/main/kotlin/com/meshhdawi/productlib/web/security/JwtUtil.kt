@@ -38,7 +38,6 @@ class JwtUtil(appProperties: AppProperties) {
             extractAllClaims(token)
             true
         } catch (e: ExpiredJwtException) {
-            println("Token has expired")
             throw e
         } catch (e: Exception) {
             false

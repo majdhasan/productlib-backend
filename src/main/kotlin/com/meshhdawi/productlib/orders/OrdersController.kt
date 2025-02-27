@@ -21,34 +21,31 @@ class OrdersController(
     private val authService: AuthService
 ) {
     @GetMapping
-    fun getAllOrders(request: HttpServletRequest): ResponseEntity<List<OrderEntity>> {
-        return authService.validateJWTAuth(request) {
+    fun getAllOrders(request: HttpServletRequest): ResponseEntity<List<OrderEntity>> =
+        authService.validateJWTAuth(request) {
             if (getUserRole() != UserRole.ADMIN) throw IllegalArgumentException("You are not authorized to do this operation.")
             ResponseEntity.ok(orderService.getAllOrders())
         }
-    }
+
 
     @GetMapping("/{id}")
-    fun getOrderById(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<OrderEntity> {
-        return authService.validateJWTAuth(request) {
+    fun getOrderById(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<OrderEntity> =
+        authService.validateJWTAuth(request) {
             val order = orderService.getOrderById(id)
             if (getUserRole() != UserRole.ADMIN && getUserId() != order.customerId?.id) {
                 throw IllegalArgumentException("You are not authorized to view orders for this user.")
             }
             ResponseEntity.ok(order)
         }
-    }
 
     @GetMapping("/user/{customerId}")
     fun getOrdersByCustomer(
         @PathVariable customerId: Long,
         request: HttpServletRequest
-    ): ResponseEntity<List<OrderEntity>> {
-        return authService.validateJWTAuth(request) {
-            if (getUserId() != customerId) throw IllegalArgumentException("You are not authorized to view orders for this user.")
-            val orders = orderService.getOrdersByCustomer(customerId)
-            ResponseEntity.ok(orders)
-        }
+    ): ResponseEntity<List<OrderEntity>> = authService.validateJWTAuth(request) {
+        if (getUserId() != customerId) throw IllegalArgumentException("You are not authorized to view orders for this user.")
+        val orders = orderService.getOrdersByCustomer(customerId)
+        ResponseEntity.ok(orders)
     }
 
     @PostMapping

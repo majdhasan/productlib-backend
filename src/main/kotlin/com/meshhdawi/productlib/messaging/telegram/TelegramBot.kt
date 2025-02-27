@@ -29,10 +29,7 @@ class TelegramBot(appProperties: AppProperties) : LongPollingSingleThreadUpdateC
 
     override fun consume(update: Update) {
         if (update.hasMessage() && update.message.hasText()) {
-            val messageText = update.message.text
             val chatId = update.message.chatId
-
-            println("Received message: $messageText from chatId: $chatId")
 
             val answer: String = """
                 اهلا وسهلا فيك من مخبز المشهداوي.
