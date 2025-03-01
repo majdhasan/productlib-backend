@@ -6,3 +6,6 @@ spring:
     password: productlib
   jpa:
     show-sql: false
+
+meshhdawi:
+  telegram-token: ${TELEGRAM_TOKEN}

@@ -7,7 +7,7 @@ data class AppProperties(
     val emailConfig: EmailConfig,
     val fileStorage: FileStorage,
     val jwtSecret: String,
-    val telegramToken: String,
+    val telegramToken: String = "",
 ) {
 
     data class EmailConfig(

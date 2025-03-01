@@ -12,7 +12,7 @@ data class CreateUserRequest(
 ){
     fun toUserEntity(): UserEntity {
         return UserEntity(
-            email = email,
+            email = email.trimIndent().lowercase(),
             firstName = firstName,
             lastName = lastName,
             password = BCrypt.hashpw(password, BCrypt.gensalt()),

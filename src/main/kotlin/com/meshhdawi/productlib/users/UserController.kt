@@ -5,7 +5,6 @@ import com.meshhdawi.productlib.context.getUserId
 import com.meshhdawi.productlib.context.getUserRole
 import com.meshhdawi.productlib.customexceptions.ErrorResponse
 import com.meshhdawi.productlib.web.security.AuthService
-import com.meshhdawi.productlib.web.security.JwtUtil
 import com.meshhdawi.productlib.web.security.RefreshTokenRequest
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.MediaType
@@ -30,7 +29,8 @@ class UserController(
 
     @PostMapping("/login")
     fun loginUser(@RequestBody loginRequest: LoginRequest): ResponseEntity<Map<String, Any>> {
-        val authenticatedUser = service.authenticateUser(loginRequest.email, loginRequest.password)
+        val authenticatedUser =
+            service.authenticateUser(loginRequest.email.trimIndent().lowercase(), loginRequest.password)
 
         val user = authenticatedUser["user"]!! as UserEntity
         val token = authenticatedUser["token"]!! as String
@@ -45,7 +45,10 @@ class UserController(
     }
 
     @PutMapping
-    fun updateUser(@RequestBody userUpdateRequest: UserUpdateRequest, request: HttpServletRequest): ResponseEntity<Any> =
+    fun updateUser(
+        @RequestBody userUpdateRequest: UserUpdateRequest,
+        request: HttpServletRequest
+    ): ResponseEntity<Any> =
         authService.validateJWTAuth(request) {
             val userId = getUserId()
             if (getUserRole() != UserRole.ADMIN && userUpdateRequest.id != userId) {
