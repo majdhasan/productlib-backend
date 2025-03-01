@@ -5,6 +5,7 @@ enum class OrderStatus {
     APPROVED,
     IN_PREPARATION,
     DECLINED,
+    CANCELLED,
     READY_FOR_PICKUP,
     IN_DELIVERY,
     DELIVERED,

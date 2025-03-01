@@ -5,6 +5,7 @@ import com.meshhdawi.productlib.cart.CartService
 import com.meshhdawi.productlib.messaging.email.EmailService
 import com.meshhdawi.productlib.messaging.telegram.TelegramAdminRepository
 import com.meshhdawi.productlib.messaging.telegram.TelegramBot
+import com.meshhdawi.productlib.notifications.NotificationService
 import com.meshhdawi.productlib.orders.orderitems.OrderItemEntity
 import com.meshhdawi.productlib.orders.orderitems.OrderItemRepository
 import com.meshhdawi.productlib.users.UserRepository
@@ -24,7 +25,8 @@ class OrderService(
     private val orderItemRepository: OrderItemRepository,
     private val emailService: EmailService,
     private val telegramBot: TelegramBot,
-    private val telegramAdminRepository: TelegramAdminRepository
+    private val telegramAdminRepository: TelegramAdminRepository,
+    private val notificationService: NotificationService,
 ) {
 
     private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
@@ -105,7 +107,43 @@ class OrderService(
             .orElseThrow { IllegalArgumentException("Order not found with ID: ${orderStatusRequest.orderId}") }
 
         order.status = orderStatusRequest.status
-        return orderRepository.save(order)
+        return orderRepository.save(order).also {
+            when (orderStatusRequest.status) {
+                OrderStatus.APPROVED -> {
+                    notificationService.createNotification(
+                        title = "تمت الموافقة على طلبك",
+                        message = "تمت الموافقة على طلبك رقم ${order.id}",
+                        userId = order.customerId?.id
+                            ?: throw IllegalArgumentException("Order does not have a customer"),
+                        orderId = order.id
+                    )
+                }
+
+                OrderStatus.READY_FOR_PICKUP -> {
+                    notificationService.createNotification(
+                        title = "الطلب جاهز للاستلام",
+                        message = "الطلب رقم ${order.id} جاهز للاستلام",
+                        userId = order.customerId?.id
+                            ?: throw IllegalArgumentException("Order does not have a customer"),
+                        orderId = order.id
+                    )
+                }
+
+                OrderStatus.DECLINED -> {
+                    notificationService.createNotification(
+                        title = "تم رفض طلبك",
+                        message = "تم رفض طلبك رقم ${order.id}",
+                        userId = order.customerId?.id
+                            ?: throw IllegalArgumentException("Order does not have a customer"),
+                        orderId = order.id
+                    )
+                }
+
+                else -> {
+                   // TODO add other order specific notifications
+                }
+            }
+        }
     }
 
     fun OrderEntity.sendOrderConfirmationEmail() {
