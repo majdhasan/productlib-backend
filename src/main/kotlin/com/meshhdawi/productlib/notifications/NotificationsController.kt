@@ -25,9 +25,8 @@ class NotificationsController(
         }
 
     @PutMapping("/user/read")
-    fun markNotificationsAsRead(request: HttpServletRequest): ResponseEntity<Any> =
+    fun markNotificationsAsRead(request: HttpServletRequest): ResponseEntity<List<NotificationEntity>> =
         authService.validateJWTAuth(request) {
-            notificationService.markNotificationsAsRead(getUserId())
-            ResponseEntity.ok().build()
+            ResponseEntity.ok(notificationService.markNotificationsAsRead(getUserId()))
         }
 }

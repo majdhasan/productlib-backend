@@ -23,9 +23,11 @@ class NotificationService(private val notificationRepository: NotificationReposi
     }
 
     @Transactional
-    fun markNotificationsAsRead(userId: Long) {
+    fun markNotificationsAsRead(userId: Long): List<NotificationEntity> {
         val notifications = notificationRepository.findByUserId(userId)
-        notifications.forEach { notificationRepository.save(it.copy(isRead = true)) }
+        val updatedNotifications = notifications.map { it.copy(isRead = true) }
+        notificationRepository.saveAll(updatedNotifications)
+        return updatedNotifications
     }
 
     // TODO expose in the controller
