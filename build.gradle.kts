@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.meshhdawi"
-version = "0.1.9-SNAPSHOT"
+version = "0.2.0"
 
 java {
 	toolchain {

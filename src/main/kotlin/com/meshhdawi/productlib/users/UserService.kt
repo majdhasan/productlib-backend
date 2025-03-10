@@ -81,7 +81,7 @@ class UserService(
 
     private fun validateUserUniqueness(email: String) {
         if (repository.findByEmail(email) != null) {
-            throw IllegalArgumentException("Email already exists.")
+            throw IllegalArgumentException("الايميل مستخدم من قبل، هل نسيت كلمة المرور؟")
         }
     }
 

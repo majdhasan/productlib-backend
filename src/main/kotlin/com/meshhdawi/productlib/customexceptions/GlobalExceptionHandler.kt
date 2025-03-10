@@ -22,6 +22,15 @@ class GlobalExceptionHandler {
         return ResponseEntity(response, HttpStatus.BAD_REQUEST) // HTTP 400: Bad Request
     }
 
+    @ExceptionHandler(IllegalStateException::class)
+    fun handleIllegalStateException(ex: IllegalStateException): ResponseEntity<Map<String, String>> {
+        val message: String = ex.message ?: "No message provided"
+        logger.warn("IllegalStateException: {}", message) // Log warning level for client errors
+        val response = mapOf("error" to message)
+        return ResponseEntity(response, HttpStatus.NOT_ACCEPTABLE) // HTTP 406: Not Acceptable
+    }
+
+
     @ExceptionHandler(NoResourceFoundException::class)
     fun handleNoResourceFoundException(ex: NoResourceFoundException): ResponseEntity<Map<String, String>> {
         logger.warn("NoResourceFoundException: {}", ex.message) // Log only the missing resource message

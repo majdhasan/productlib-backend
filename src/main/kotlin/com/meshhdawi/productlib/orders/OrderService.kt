@@ -129,6 +129,16 @@ class OrderService(
                     )
                 }
 
+                OrderStatus.PICKED_UP -> {
+                    notificationService.createNotification(
+                        title = "تم استلام الطلب",
+                        message = "تم استلام الطلب رقم ${order.id}",
+                        userId = order.customerId?.id
+                            ?: throw IllegalArgumentException("Order does not have a customer"),
+                        orderId = order.id
+                    )
+                }
+
                 OrderStatus.DECLINED -> {
                     notificationService.createNotification(
                         title = "تم رفض طلبك",
@@ -140,13 +150,35 @@ class OrderService(
                 }
 
                 else -> {
-                   // TODO add other order specific notifications
+                    // TODO add other order specific notifications
                 }
             }
         }
     }
 
-    fun OrderEntity.sendOrderConfirmationEmail() {
+    fun cancelOrder(id: Long): OrderEntity {
+        val order = orderRepository.findById(id).orElseThrow { IllegalArgumentException("Order not found with ID: $id") }
+        if (order.status == OrderStatus.CANCELLED) {
+            throw IllegalStateException("Order is already cancelled.")
+        }
+        if (!order.status.isCancelable()) {
+            throw IllegalStateException("لا يمكن الغاء الطلب في هذه المرحلة، يرجى التواصل مع المخبز عبر الهاتف.")
+        }
+        order.status = OrderStatus.CANCELLED
+        return orderRepository.save(order).also {
+            notificationService.createNotification(
+                title = "تم الغاء طلبك",
+                message = "تم الغاء طلبك رقم ${order.id}",
+                userId = order.customerId?.id
+                    ?: throw IllegalArgumentException("Order does not have a customer"),
+                orderId = order.id
+            )
+        }
+    }
+
+    private fun OrderStatus.isCancelable(): Boolean = this == OrderStatus.SUBMITTED || this == OrderStatus.APPROVED
+
+    private fun OrderEntity.sendOrderConfirmationEmail() {
         customerId?.let {
             val arabicText: String = """
             <html>
@@ -230,7 +262,7 @@ class OrderService(
         }
     }
 
-    fun OrderEntity.notifyAdmins() {
+    private fun OrderEntity.notifyAdmins() {
         val admins = userService.getUsersByRole(UserRole.ADMIN)
         val text: String = """
             <html>

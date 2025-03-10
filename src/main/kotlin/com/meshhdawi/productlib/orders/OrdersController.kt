@@ -66,4 +66,15 @@ class OrdersController(
             val updatedOrder = orderService.updateOrderStatus(orderStatusRequest)
             ResponseEntity.ok(updatedOrder)
         }
+
+    @PutMapping("/cancel/{id}")
+    fun cancelOrder(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<OrderEntity> =
+        authService.validateJWTAuth(request) {
+            val order = orderService.getOrderById(id)
+            if (getUserRole() != UserRole.ADMIN && getUserId() != order.customerId?.id) {
+                throw IllegalArgumentException("You are not authorized to cancel orders for this user.")
+            }
+            val cancelledOrder = orderService.cancelOrder(id)
+            ResponseEntity.ok(cancelledOrder)
+        }
 }
