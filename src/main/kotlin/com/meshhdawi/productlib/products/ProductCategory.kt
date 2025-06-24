@@ -6,5 +6,6 @@ enum class ProductCategory {
     FATAYER,
     BISCUITS,
     FAMILY_MEALS,
+    DRINKS,
     OTHERS
 }
