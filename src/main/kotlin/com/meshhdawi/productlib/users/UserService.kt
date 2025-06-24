@@ -37,6 +37,8 @@ class UserService(
         }, 24, 24, TimeUnit.HOURS)
     }
 
+    private fun normalizeEmail(email: String) = email.trim().lowercase()
+
     private fun validatePassword(password: String) {
         if (password.length < 6) {
             throw IllegalArgumentException("Password must be at least 6 characters long")
@@ -44,9 +46,12 @@ class UserService(
     }
 
     fun createUser(request: CreateUserRequest): UserEntity {
-        validateUserUniqueness(request.email)
+        val email = normalizeEmail(request.email)
+        validateUserUniqueness(email)
         validatePassword(request.password)
-        val savedUser = repository.save(request.toUserEntity())
+
+        val sanitizedRequest = request.copy(email = email)
+        val savedUser = repository.save(sanitizedRequest.toUserEntity())
         verificationService.createVerificationToken(savedUser)
         return savedUser
     }
@@ -64,7 +69,8 @@ class UserService(
     }
 
     fun authenticateUser(email: String, password: String): Map<String, Any> {
-        val user: UserEntity = repository.findByEmail(email)
+        val normalizedEmail = normalizeEmail(email)
+        val user: UserEntity = repository.findByEmail(normalizedEmail)
             ?: throw IllegalArgumentException("User with email $email not found")
 
         if (!BCrypt.checkpw(password, user.password)) {
@@ -80,7 +86,8 @@ class UserService(
     }
 
     private fun validateUserUniqueness(email: String) {
-        if (repository.findByEmail(email) != null) {
+        val normalizedEmail = normalizeEmail(email)
+        if (repository.findByEmail(normalizedEmail) != null) {
             throw IllegalArgumentException("الايميل مستخدم من قبل، هل نسيت كلمة المرور؟")
         }
     }
@@ -131,10 +138,11 @@ class UserService(
     }
 
     fun forgotPassword(email: String) {
-        val user = repository.findByEmail(email)
+        val normalizedEmail = normalizeEmail(email)
+        val user = repository.findByEmail(normalizedEmail)
             ?: throw IllegalArgumentException("User with email $email not found")
 
-        if (resetAttempts.containsKey(email)) {
+        if (resetAttempts.containsKey(normalizedEmail)) {
             throw IllegalArgumentException("Password reset already requested. Please try again after 24 hours.")
         }
         verificationService.createRandomToken(6).also { token ->
@@ -142,7 +150,7 @@ class UserService(
             repository.save(user).run {
                 sendNewPasswordEmail(user, token)
             }
-            resetAttempts[email] = System.currentTimeMillis()
+            resetAttempts[normalizedEmail] = System.currentTimeMillis()
         }
     }
 
