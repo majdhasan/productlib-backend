@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -62,6 +63,15 @@ class OrdersController(
     fun createGuestOrder(@RequestBody orderRequest: GuestOrderRequest): ResponseEntity<OrderEntity> {
         val createdOrder = orderService.createGuestOrder(orderRequest)
         return ResponseEntity.ok(createdOrder)
+    }
+
+    @GetMapping("/guest/{id}")
+    fun getGuestOrderById(
+        @PathVariable id: Long,
+        @RequestParam("lastName") lastName: String
+    ): ResponseEntity<OrderEntity> {
+        val order = orderService.getGuestOrderById(id, lastName)
+        return ResponseEntity.ok(order)
     }
 
     @PutMapping("/status")
