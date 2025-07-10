@@ -229,6 +229,19 @@ class OrderService(
         }
     }
 
+    fun cancelGuestOrder(id: Long, lastName: String): OrderEntity {
+        val order = orderRepository.findByIdAndLastNameAndCustomerIdIsNull(id, lastName)
+            ?: throw IllegalArgumentException("Guest order not found with ID: $id")
+        if (order.status == OrderStatus.CANCELLED) {
+            throw IllegalStateException("Order is already cancelled.")
+        }
+        if (!order.status.isCancelable()) {
+            throw IllegalStateException("لا يمكن الغاء الطلب في هذه المرحلة، يرجى التواصل مع المخبز عبر الهاتف.")
+        }
+        order.status = OrderStatus.CANCELLED
+        return orderRepository.save(order)
+    }
+
     private fun OrderStatus.isCancelable(): Boolean = this == OrderStatus.SUBMITTED || this == OrderStatus.APPROVED
 
     private fun OrderEntity.sendOrderConfirmationEmail() {
