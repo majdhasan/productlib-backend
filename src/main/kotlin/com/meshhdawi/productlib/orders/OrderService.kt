@@ -8,6 +8,7 @@ import com.meshhdawi.productlib.messaging.telegram.TelegramBot
 import com.meshhdawi.productlib.notifications.NotificationService
 import com.meshhdawi.productlib.orders.orderitems.OrderItemEntity
 import com.meshhdawi.productlib.orders.orderitems.OrderItemRepository
+import com.meshhdawi.productlib.products.ProductService
 import com.meshhdawi.productlib.users.UserRepository
 import com.meshhdawi.productlib.users.UserRole
 import com.meshhdawi.productlib.users.UserService
@@ -27,6 +28,7 @@ class OrderService(
     private val telegramBot: TelegramBot,
     private val telegramAdminRepository: TelegramAdminRepository,
     private val notificationService: NotificationService,
+    private val productService: ProductService,
 ) {
 
     private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
@@ -98,6 +100,52 @@ class OrderService(
         cartService.deleteCart(cart.id)
         return savedOrder.also {
             savedOrder.sendOrderConfirmationEmail()
+            savedOrder.notifyAdmins()
+        }
+    }
+
+    @Transactional
+    fun createGuestOrder(orderRequest: GuestOrderRequest): OrderEntity {
+        if (orderRequest.items.isEmpty()) {
+            throw IllegalStateException("Order must contain at least one item.")
+        }
+
+        val savedOrder = orderRepository.save(
+            OrderEntity(
+                customerId = null,
+                type = orderRequest.orderType,
+                address = orderRequest.address,
+                phone = orderRequest.phone,
+                firstName = orderRequest.firstName,
+                lastName = orderRequest.lastName,
+                notes = orderRequest.orderNotes,
+                wishedPickupTime = orderRequest.wishedPickupTime,
+            )
+        )
+
+        val orderItems = orderRequest.items.map { item ->
+            val product = productService.getProductsById(item.productId)
+            val productName = product.translations.firstOrNull { it.language == orderRequest.language }?.name
+                ?: product.name
+            val productDescription = product.translations.firstOrNull { it.language == orderRequest.language }?.description
+                ?: product.description
+
+            orderItemRepository.save(
+                OrderItemEntity(
+                    order = savedOrder,
+                    productId = product.id,
+                    productName = productName,
+                    productDescription = productDescription,
+                    productPrice = product.price,
+                    quantity = item.quantity,
+                    notes = item.notes,
+                    productImage = product.image,
+                )
+            )
+        }
+
+        savedOrder.items.addAll(orderItems)
+        return savedOrder.also {
             savedOrder.notifyAdmins()
         }
     }

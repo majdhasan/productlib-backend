@@ -4,6 +4,8 @@ import com.meshhdawi.productlib.context.getUserId
 import com.meshhdawi.productlib.context.getUserRole
 import com.meshhdawi.productlib.users.UserRole
 import com.meshhdawi.productlib.web.security.AuthService
+import com.meshhdawi.productlib.orders.GuestOrderRequest
+import com.meshhdawi.productlib.orders.OrderEntity
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -55,6 +57,12 @@ class OrdersController(
             val createdOrder = orderService.createOrder(orderRequest)
             ResponseEntity.ok(createdOrder)
         }
+
+    @PostMapping("/guest")
+    fun createGuestOrder(@RequestBody orderRequest: GuestOrderRequest): ResponseEntity<OrderEntity> {
+        val createdOrder = orderService.createGuestOrder(orderRequest)
+        return ResponseEntity.ok(createdOrder)
+    }
 
     @PutMapping("/status")
     fun updateOrderStatus(
