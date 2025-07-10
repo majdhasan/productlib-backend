@@ -163,43 +163,47 @@ class OrderService(
         return orderRepository.save(order).also {
             when (orderStatusRequest.status) {
                 OrderStatus.APPROVED -> {
-                    notificationService.createNotification(
-                        title = "تمت الموافقة على طلبك",
-                        message = "تمت الموافقة على طلبك رقم ${order.id}",
-                        userId = order.customerId?.id
-                            ?: throw IllegalArgumentException("Order does not have a customer"),
-                        orderId = order.id
-                    )
+                    order.customerId?.let {
+                        notificationService.createNotification(
+                            title = "تمت الموافقة على طلبك",
+                            message = "تمت الموافقة على طلبك رقم ${order.id}",
+                            userId = it.id,
+                            orderId = order.id
+                        )
+                    }
                 }
 
                 OrderStatus.READY_FOR_PICKUP -> {
-                    notificationService.createNotification(
-                        title = "الطلب جاهز للاستلام",
-                        message = "الطلب رقم ${order.id} جاهز للاستلام",
-                        userId = order.customerId?.id
-                            ?: throw IllegalArgumentException("Order does not have a customer"),
-                        orderId = order.id
-                    )
+                    order.customerId?.let {
+                        notificationService.createNotification(
+                            title = "الطلب جاهز للاستلام",
+                            message = "الطلب رقم ${order.id} جاهز للاستلام",
+                            userId = it.id,
+                            orderId = order.id
+                        )
+                    }
                 }
 
                 OrderStatus.PICKED_UP -> {
-                    notificationService.createNotification(
-                        title = "تم استلام الطلب",
-                        message = "تم استلام الطلب رقم ${order.id}",
-                        userId = order.customerId?.id
-                            ?: throw IllegalArgumentException("Order does not have a customer"),
-                        orderId = order.id
-                    )
+                    order.customerId?.let {
+                        notificationService.createNotification(
+                            title = "تم استلام الطلب",
+                            message = "تم استلام الطلب رقم ${order.id}",
+                            userId = it.id,
+                            orderId = order.id
+                        )
+                    }
                 }
 
                 OrderStatus.DECLINED -> {
-                    notificationService.createNotification(
-                        title = "تم رفض طلبك",
-                        message = "تم رفض طلبك رقم ${order.id}",
-                        userId = order.customerId?.id
-                            ?: throw IllegalArgumentException("Order does not have a customer"),
-                        orderId = order.id
-                    )
+                    order.customerId?.let {
+                        notificationService.createNotification(
+                            title = "تم رفض طلبك",
+                            message = "تم رفض طلبك رقم ${order.id}",
+                            userId = it.id,
+                            orderId = order.id
+                        )
+                    }
                 }
 
                 else -> {
@@ -219,13 +223,14 @@ class OrderService(
         }
         order.status = OrderStatus.CANCELLED
         return orderRepository.save(order).also {
-            notificationService.createNotification(
-                title = "تم الغاء طلبك",
-                message = "تم الغاء طلبك رقم ${order.id}",
-                userId = order.customerId?.id
-                    ?: throw IllegalArgumentException("Order does not have a customer"),
-                orderId = order.id
-            )
+            order.customerId?.let { user ->
+                notificationService.createNotification(
+                    title = "تم الغاء طلبك",
+                    message = "تم الغاء طلبك رقم ${order.id}",
+                    userId = user.id,
+                    orderId = order.id
+                )
+            }
         }
     }
 
