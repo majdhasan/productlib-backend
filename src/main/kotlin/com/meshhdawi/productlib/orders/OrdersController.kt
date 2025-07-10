@@ -74,6 +74,15 @@ class OrdersController(
         return ResponseEntity.ok(order)
     }
 
+    @PutMapping("/guest/cancel/{id}")
+    fun cancelGuestOrder(
+        @PathVariable id: Long,
+        @RequestParam("lastName") lastName: String
+    ): ResponseEntity<OrderEntity> {
+        val cancelledOrder = orderService.cancelGuestOrder(id, lastName)
+        return ResponseEntity.ok(cancelledOrder)
+    }
+
     @PutMapping("/status")
     fun updateOrderStatus(
         @RequestBody orderStatusRequest: OrderStatusRequest,
