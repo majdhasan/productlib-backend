@@ -150,6 +150,11 @@ class OrderService(
         }
     }
 
+    fun getGuestOrderById(orderId: Long, lastName: String): OrderEntity {
+        return orderRepository.findByIdAndLastNameAndCustomerIdIsNull(orderId, lastName)
+            ?: throw IllegalArgumentException("Guest order not found with ID: $orderId")
+    }
+
     fun updateOrderStatus(orderStatusRequest: OrderStatusRequest): OrderEntity {
         val order = orderRepository.findById(orderStatusRequest.orderId)
             .orElseThrow { IllegalArgumentException("Order not found with ID: ${orderStatusRequest.orderId}") }
