@@ -23,7 +23,9 @@ object PhoneUtils {
      * 15 characters as per E.164 standard.
      */
     fun sanitize(phone: String): String {
-        val normalized = phone.map { arabicToEnglishDigits[it] ?: it }.joinToString("")
+        val normalized = phone.fold(StringBuilder()) { sb, char -> 
+            sb.append(arabicToEnglishDigits[char] ?: char) 
+        }.toString()
         val cleaned = normalized.trim().replace("[^+0-9]".toRegex(), "")
         if (!allowedRegex.matches(cleaned)) {
             throw IllegalArgumentException(
