@@ -1,7 +1,7 @@
 package com.meshhdawi.productlib.utils
 
 object PhoneUtils {
-    private val allowedRegex = Regex("^[+]?[0-9]*$")
+    private val allowedRegex = Regex("^\\+?[0-9]{1,15}$")
 
     /**
      * Remove spaces and punctuation from the given phone number and make sure
@@ -10,13 +10,9 @@ object PhoneUtils {
      * 15 characters as per E.164 standard.
      */
     fun sanitize(phone: String): String {
-        val cleaned = phone.trim()
-            .replace("(\\s|-|\u00A0|\\(|\))".toRegex(), "")
+        val cleaned = phone.trim().replace("[^+0-9]".toRegex(), "")
         if (!allowedRegex.matches(cleaned)) {
             throw IllegalArgumentException("Invalid phone number")
-        }
-        if (cleaned.length > 15) {
-            throw IllegalArgumentException("Phone number too long")
         }
         return cleaned
     }
