@@ -8,6 +8,7 @@ import com.meshhdawi.productlib.messaging.email.EmailService
 import com.meshhdawi.productlib.users.verification.VerificationService
 import com.meshhdawi.productlib.users.verification.VerificationTokenRepository
 import com.meshhdawi.productlib.web.security.JwtUtil
+import com.meshhdawi.productlib.utils.PhoneUtils
 import org.mindrot.jbcrypt.BCrypt
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -50,7 +51,8 @@ class UserService(
         validateUserUniqueness(email)
         validatePassword(request.password)
 
-        val sanitizedRequest = request.copy(email = email)
+        val sanitizedPhone = PhoneUtils.sanitize(request.phoneNumber)
+        val sanitizedRequest = request.copy(email = email, phoneNumber = sanitizedPhone)
         val savedUser = repository.save(sanitizedRequest.toUserEntity())
         verificationService.createVerificationToken(savedUser)
         return savedUser
@@ -58,11 +60,12 @@ class UserService(
 
     fun updateUser(userUpdateRequest: UserUpdateRequest): UserEntity {
         val user = getUserById(userUpdateRequest.id)
+        val sanitizedPhone = PhoneUtils.sanitize(userUpdateRequest.phoneNumber)
         return repository.save(
             user.copy(
                 firstName = userUpdateRequest.firstName,
                 lastName = userUpdateRequest.lastName,
-                phoneNumber = userUpdateRequest.phoneNumber,
+                phoneNumber = sanitizedPhone,
                 agreeToReceiveMessages = userUpdateRequest.agreeToReceiveMessages
             )
         )

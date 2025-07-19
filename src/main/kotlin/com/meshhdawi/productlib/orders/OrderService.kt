@@ -12,6 +12,7 @@ import com.meshhdawi.productlib.products.ProductService
 import com.meshhdawi.productlib.users.UserRepository
 import com.meshhdawi.productlib.users.UserRole
 import com.meshhdawi.productlib.users.UserService
+import com.meshhdawi.productlib.utils.PhoneUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.format.DateTimeFormatter
@@ -60,12 +61,14 @@ class OrderService(
             throw IllegalStateException("Cart cannot be empty.")
         }
 
+        val sanitizedPhone = PhoneUtils.sanitize(orderRequest.phone)
+
         val savedOrder = orderRepository.save(
             OrderEntity(
                 customerId = customer,
                 type = orderRequest.orderType,
                 address = orderRequest.address,
-                phone = orderRequest.phone,
+                phone = sanitizedPhone,
                 firstName = orderRequest.firstName,
                 lastName = orderRequest.lastName,
                 notes = orderRequest.orderNotes,
@@ -110,12 +113,14 @@ class OrderService(
             throw IllegalStateException("Order must contain at least one item.")
         }
 
+        val sanitizedPhone = PhoneUtils.sanitize(orderRequest.phone)
+
         val savedOrder = orderRepository.save(
             OrderEntity(
                 customerId = null,
                 type = orderRequest.orderType,
                 address = orderRequest.address,
-                phone = orderRequest.phone,
+                phone = sanitizedPhone,
                 firstName = orderRequest.firstName,
                 lastName = orderRequest.lastName,
                 notes = orderRequest.orderNotes,
