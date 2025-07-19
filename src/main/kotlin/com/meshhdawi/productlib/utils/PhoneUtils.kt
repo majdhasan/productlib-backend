@@ -12,7 +12,7 @@ object PhoneUtils {
     fun sanitize(phone: String): String {
         val cleaned = phone.trim().replace("[^+0-9]".toRegex(), "")
         if (!allowedRegex.matches(cleaned)) {
-            throw IllegalArgumentException("Invalid phone number")
+            throw IllegalArgumentException("Invalid phone number: must contain only digits, may start with an optional '+', and be 1-15 characters long.")
         }
         return cleaned
     }
